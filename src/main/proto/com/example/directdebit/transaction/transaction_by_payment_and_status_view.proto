@@ -1,0 +1,108 @@
+syntax = "proto3";
+
+package com.example.directdebit.transaction;
+
+import "google/api/annotations.proto";
+import "google/protobuf/any.proto";
+import "kalix/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
+import "com/example/directdebit/transaction/transaction_domain.proto";
+import "com/example/directdebit/transaction/transaction_api.proto";
+
+option java_outer_classname = "TransactionByPaymentAndStatus";
+
+message TransactionByPaymentAndStatusRecord {
+  string payment_id = 1;
+  int32 status_id = 2;
+  TransactionStatus status = 3;
+  string trans_id = 4 ;
+  google.protobuf.Timestamp last_update_timestamp = 1000;
+}
+
+message GetTransactionByPaymentAndStatusRequest {
+  string payment_id = 1;
+  int32 status_id = 2;
+}
+
+message GetTransactionByPaymentAndStatusResponse {
+  repeated TransactionByPaymentAndStatusRecord records = 1;
+}
+
+service TransactionByPaymentAndStatusView {
+  option (kalix.codegen) = {
+    view: {}
+  };
+
+  rpc GetTransactionByPaymentAndStatus(GetTransactionByPaymentAndStatusRequest) returns (GetTransactionByPaymentAndStatusResponse) {
+    option (kalix.method).view.query = {
+      query: "SELECT * AS records"
+          "  FROM transaction_by_payment_and_status"
+          " WHERE payment_id = :payment_id AND status_id = :status_id"
+    };
+    option (google.api.http) = {
+      post: "/transaction/views/by-payment-and-status",
+      body: "*"
+    };
+  }
+
+  rpc OnCreated(Created) returns (TransactionByPaymentAndStatusRecord) {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "transaction"
+    };
+    option (kalix.method).view.update = {
+      table: "transaction_by_payment_and_status"
+      transform_updates: true
+    };
+  }
+
+  rpc OnInitialized(Initialized) returns (TransactionByPaymentAndStatusRecord) {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "transaction"
+    };
+    option (kalix.method).view.update = {
+      table: "transaction_by_payment_and_status"
+      transform_updates: true
+    };
+  }
+
+  rpc OnDebitStarted(DebitStarted) returns (TransactionByPaymentAndStatusRecord) {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "transaction"
+    };
+    option (kalix.method).view.update = {
+      table: "transaction_by_payment_and_status"
+      transform_updates: true
+    };
+  }
+
+  rpc OnDebited(Debited) returns (TransactionByPaymentAndStatusRecord) {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "transaction"
+    };
+    option (kalix.method).view.update = {
+      table: "transaction_by_payment_and_status"
+      transform_updates: true
+    };
+  }
+
+  rpc OnDebitFailed(DebitFailed) returns (TransactionByPaymentAndStatusRecord) {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "transaction"
+    };
+    option (kalix.method).view.update = {
+      table: "transaction_by_payment_and_status"
+      transform_updates: true
+    };
+  }
+
+  rpc IgnoreOtherEvents(google.protobuf.Any) returns (TransactionByPaymentAndStatusRecord) {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "transaction"
+    };
+    option (kalix.method).view.update = {
+      table: "transaction_by_payment_and_status"
+      transform_updates: true
+    };
+  }
+}

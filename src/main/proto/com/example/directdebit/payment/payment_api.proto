@@ -1,0 +1,61 @@
+// This is the public API offered by your entity.
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "kalix/annotations.proto";
+import "google/api/annotations.proto";
+
+import "com/example/directdebit/payment/payment_domain.proto";
+
+package com.example.directdebit.payment;
+
+option java_outer_classname = "PaymentApi";
+
+message CreateCommand {
+  string payment_id = 1 [(kalix.field).entity_key = true];
+  int32 credit_amount = 2;
+}
+
+message InitializeCommand {
+  string payment_id = 1 [(kalix.field).entity_key = true];
+}
+
+message TriggerCreditCommand {
+  string payment_id = 1 [(kalix.field).entity_key = true];
+}
+
+message CreditSuccessfulCommand {
+  string payment_id = 1 [(kalix.field).entity_key = true];
+}
+message CreditFailCommand {
+  string payment_id = 1 [(kalix.field).entity_key = true];
+  string reason = 2;
+}
+message GetPaymentStateCommand {
+  string payment_id = 1 [(kalix.field).entity_key = true];
+}
+
+service PaymentService {
+  option (kalix.codegen) = {
+    event_sourced_entity: {
+      name: "com.example.directdebit.payment.PaymentEntity"
+      entity_type: "payment"
+      state: "com.example.directdebit.payment.PaymentState",
+      events: [
+        "com.example.directdebit.payment.Created",
+        "com.example.directdebit.payment.Initialized",
+        "com.example.directdebit.payment.CreditStarted",
+        "com.example.directdebit.payment.Credited",
+        "com.example.directdebit.payment.CreditFailed"
+      ]
+    }
+  };
+  option (kalix.service).acl.allow = { principal: ALL };
+
+  rpc Create(CreateCommand) returns (google.protobuf.Empty);
+  rpc Initialize(InitializeCommand) returns (google.protobuf.Empty);
+  rpc TriggerCredit(TriggerCreditCommand) returns (google.protobuf.Empty);
+  rpc CreditSuccessful(CreditSuccessfulCommand) returns (google.protobuf.Empty);
+  rpc CreditFail(CreditFailCommand) returns (google.protobuf.Empty);
+  rpc GetPaymentState(GetPaymentStateCommand) returns (PaymentState);
+}

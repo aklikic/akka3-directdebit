@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+package com.example.directdebit.fileprocessor;
+
+option java_outer_classname = "FileProcessorDomain";
+
+
+//state
+message FileProcessorState {
+  string file_name = 1;
+  FileProcessorStatus status = 2;
+}
+
+enum FileProcessorStatus {
+  UNKNOWN = 0;
+  STARTED = 1;
+  FINISHED = 2;
+}
+
+//events
+message Started {
+  string file_name = 1;
+  google.protobuf.Timestamp event_timestamp = 1000;
+}
+message Finished {
+  string file_name = 1;
+  google.protobuf.Timestamp event_timestamp = 1000;
+}

@@ -1,0 +1,61 @@
+// This is the public API offered by your entity.
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "kalix/annotations.proto";
+import "google/api/annotations.proto";
+
+import "com/example/directdebit/transaction/transaction_domain.proto";
+
+package com.example.directdebit.transaction;
+
+option java_outer_classname = "PaymentApi";
+
+message CreateCommand {
+  string trans_id = 1 [(kalix.field).entity_key = true];
+  int32 debit_amount = 2;
+}
+
+message InitializeCommand {
+  string trans_id = 1 [(kalix.field).entity_key = true];
+}
+
+message TriggerDebitCommand {
+  string trans_id = 1 [(kalix.field).entity_key = true];
+}
+
+message DebitSuccessfulCommand {
+  string trans_id = 1 [(kalix.field).entity_key = true];
+}
+message DebitFailCommand {
+  string trans_id = 1 [(kalix.field).entity_key = true];
+  string reason = 2;
+}
+message GetTransactionStateCommand {
+  string trans_id = 1 [(kalix.field).entity_key = true];
+}
+
+service TransactionService {
+  option (kalix.codegen) = {
+    event_sourced_entity: {
+      name: "com.example.directdebit.transaction.TransactionEntity"
+      entity_type: "counter"
+      state: "com.example.directdebit.transaction.TransactionState",
+      events: [
+        "com.example.directdebit.transaction.Created",
+        "com.example.directdebit.transaction.Initialized",
+        "com.example.directdebit.transaction.DebitStarted",
+        "com.example.directdebit.transaction.Debited",
+        "com.example.directdebit.transaction.DebitFailed"
+      ]
+    }
+  };
+  option (kalix.service).acl.allow = { principal: ALL };
+
+  rpc Create(CreateCommand) returns (google.protobuf.Empty);
+  rpc Initialize(InitializeCommand) returns (google.protobuf.Empty);
+  rpc TriggerDebit(TriggerDebitCommand) returns (google.protobuf.Empty);
+  rpc DebitSuccessful(DebitSuccessfulCommand) returns (google.protobuf.Empty);
+  rpc DebitFail(DebitFailCommand) returns (google.protobuf.Empty);
+  rpc GetTransactionState(GetTransactionStateCommand) returns (TransactionState);
+}
