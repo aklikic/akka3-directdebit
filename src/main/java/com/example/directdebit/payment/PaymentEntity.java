@@ -130,7 +130,10 @@ public class PaymentEntity extends AbstractPaymentEntity {
 
   @Override
   public PaymentDomain.PaymentState created(PaymentDomain.PaymentState currentState, PaymentDomain.Created created) {
-    return PaymentDomain.PaymentState.newBuilder().setCreditAmount(created.getCreditAmount()).setStatus(PaymentDomain.PaymentStatus.CREATED).build();
+    return PaymentDomain.PaymentState.newBuilder()
+            .setCreditAmount(created.getCreditAmount())
+            .addAllTransactions(created.getTransactionsList())
+            .setStatus(PaymentDomain.PaymentStatus.CREATED).build();
   }
   @Override
   public PaymentDomain.PaymentState initialized(PaymentDomain.PaymentState currentState, PaymentDomain.Initialized initialized) {
