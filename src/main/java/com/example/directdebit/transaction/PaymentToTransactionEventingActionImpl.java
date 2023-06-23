@@ -30,11 +30,15 @@ public class PaymentToTransactionEventingActionImpl extends AbstractPaymentToTra
             .map(transId ->
                     components().transactionEntity().initialize(TransactionApi.InitializeCommand.newBuilder().setTransId(transId).build()).execute()
                             .exceptionally(ex -> {
-                              logger.error("onInitialized: {} Error:",initialized.getPaymentId(),ex);
+                              logger.error("onInitialized components: {} Error:",initialized.getPaymentId(),ex);
                               throw (RuntimeException)ex;
                             })
-                            .toCompletableFuture()).collect(Collectors.toList());
-    var zip = Utils.allOf(initializeAllTransactions).thenApply(l -> Empty.getDefaultInstance())
+                            .thenApply(res -> {
+                              logger.info("onInitialized components: {}/{} DONE!",initialized.getPaymentId(),transId);
+                              return res;
+                            })
+                            ).collect(Collectors.toList());
+    var zip = Utils.doAll(initializeAllTransactions).thenApply(l -> Empty.getDefaultInstance())
             .thenApply(res -> {
               logger.info("onInitialized: {} DONE!",initialized.getPaymentId());
               return res;
