@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package com.example.directdebit.fileprocessor;
+
+import "google/api/annotations.proto";
+import "google/protobuf/any.proto";
+import "google/protobuf/empty.proto";
+import "kalix/annotations.proto";
+
+import "com/example/directdebit/fileprocessor/fileprocessor_domain.proto";
+
+option java_outer_classname = "FileProcessor";
+
+service FileProcessorAction {
+  option (kalix.codegen) = {
+    action: {}
+  };
+  rpc OnStarted(Started) returns (google.protobuf.Empty) {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "fileprocessor"
+    };
+  }
+  rpc IgnoreOtherEvents(google.protobuf.Any) returns (google.protobuf.Empty) {
+    option (kalix.method).eventing.in = {
+      event_sourced_entity: "fileprocessor"
+    };
+  }
+}

@@ -9,14 +9,15 @@ option java_outer_classname = "TransactionDomain";
 
 //state
 message TransactionState {
-  TransactionStatus status = 1;
+  string payment_id = 1;
   int32 debit_amount = 2;
+  TransactionStatus status = 3;
 }
 
 enum TransactionStatus {
   UNKNOWN = 0;
   CREATED = 1;
-  DEBIT_SCHEDULED = 2;
+  INITIALIZED = 2;
   DEBIT_STARTED = 3;
   DEBITED = 4;
   DEBIT_FAILED = 5;
@@ -31,8 +32,7 @@ message Created {
 }
 message Initialized {
   string trans_id = 1;
-  string payment_id = 2;
-  google.protobuf.Timestamp scheduled_for = 3;
+  int32 scheduled_after_sec = 3;
   google.protobuf.Timestamp event_timestamp = 1000;
 }
 message DebitStarted {

@@ -11,6 +11,7 @@ option java_outer_classname = "PaymentDomain";
 message PaymentState {
   PaymentStatus status = 1;
   int32 credit_amount = 2;
+  repeated Transaction transactions = 3;
 }
 
 enum PaymentStatus {
@@ -25,15 +26,21 @@ enum PaymentStatus {
   CREDIT_FAILED = 5;
 }
 
+message Transaction{
+  string trans_id = 1;
+}
+
 //events
 message Created {
   string payment_id = 1;
   int32 credit_amount = 2;
+  repeated Transaction transactions = 3;
   google.protobuf.Timestamp event_timestamp = 1000;
 }
 message Initialized {
   string payment_id = 1;
-  google.protobuf.Timestamp scheduled_for = 3;
+  int32 scheduled_after_sec = 3;
+  repeated string trans_ids = 4;
   google.protobuf.Timestamp event_timestamp = 1000;
 }
 message CreditStarted {

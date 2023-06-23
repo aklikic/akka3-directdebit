@@ -9,11 +9,12 @@ import "com/example/directdebit/transaction/transaction_domain.proto";
 
 package com.example.directdebit.transaction;
 
-option java_outer_classname = "PaymentApi";
+option java_outer_classname = "TransactionApi";
 
 message CreateCommand {
   string trans_id = 1 [(kalix.field).entity_key = true];
-  int32 debit_amount = 2;
+  string payment_id = 2;
+  int32 debit_amount = 3;
 }
 
 message InitializeCommand {
@@ -39,7 +40,7 @@ service TransactionService {
   option (kalix.codegen) = {
     event_sourced_entity: {
       name: "com.example.directdebit.transaction.TransactionEntity"
-      entity_type: "counter"
+      entity_type: "transaction"
       state: "com.example.directdebit.transaction.TransactionState",
       events: [
         "com.example.directdebit.transaction.Created",
