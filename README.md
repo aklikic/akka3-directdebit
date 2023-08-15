@@ -1,75 +1,53 @@
 # kalix-directdebit
 
-
-## Designing
-
-While designing your service it is useful to read [designing services](https://docs.kalix.io/developing/development-process-proto.html)
-
-
-## Developing
-
-This project has a bare-bones skeleton service ready to go, but in order to adapt and
-extend it, it may be useful to read up on [developing services](https://docs.kalix.io/services/)
-and in particular the [Java section](https://docs.kalix.io/java-protobuf/index.html)
-
-
-## Building
-
-You can use Maven to build your project, which will also take care of
-generating code based on the `.proto` definitions:
-
-```shell
-mvn compile
+## Unit test
+Unit tests covers isolated tests of each Kalix component, in our case `Entity` and `Action` (Action tests are not implemented yet). <br>
+Run unit test:
 ```
-
-
-## Running Locally
-
-
-When running a Kalix service locally, we need to have its companion Kalix Proxy running alongside it.
-
-To start your service locally, run:
-
-```shell
+mvn test
+```
+## Integration test
+`it/java/com/example/directdebit/SystemIntegrationTest` simulates file importer and uses `payment` and `transaction` services.<br>
+Run integration test:
+```
+mvn -Pit verify
+```
+## Run locally
+Start `Kalix proxy` and `UF` (user function)
+```
 mvn kalix:runAll
 ```
+GRPC server is exposed on `localhost:9000`<br>
+Local run uses in memory database so when run is complete data is lost. 
 
-This command will start your Kalix service and a companion Kalix Proxy as configured in [docker-compose.yml](./docker-compose.yml) file.
-
-> Note: if you're looking to use Google Pub/Sub, see comments inside [docker-compose.yml](./docker-compose.yml)
-> on how to enable a Google Pub/Sub emulator that Kalix proxy will connect to.
-
-With both the proxy and your service running, any defined endpoints should be available at `http://localhost:9000`. In addition to the defined gRPC interface, each method has a corresponding HTTP endpoint. Unless configured otherwise (see [Transcoding HTTP](https://docs.kalix.io/java-protobuf/writing-grpc-descriptors-protobuf.html#_transcoding_http)), this endpoint accepts POST requests at the path `/[package].[entity name]/[method]`. For example, using `curl`:
-
-```shell
-> curl -XPOST -H "Content-Type: application/json" localhost:9000/com.example.directdebit.CounterService/GetCurrentCounter -d '{"counterId": "foo"}'
-The command handler for `GetCurrentCounter` is not implemented, yet
+## Test locally
+Example how to create payment with two transactions.<br>
+1. Create payment:
 ```
-
-For example, using [`grpcurl`](https://github.com/fullstorydev/grpcurl):
-
-```shell
-> grpcurl -plaintext -d '{"counterId": "foo"}' localhost:9000 com.example.directdebit.CounterService/GetCurrentCounter 
-ERROR:
-  Code: Unknown
-  Message: The command handler for `GetCurrentCounter` is not implemented, yet
+grpcurl -d '{"payment_id":"pay1","credit_amount":200,"transactions":[{"trans_id":"trans1"},{"trans_id":"trans2"}]}' -plaintext localhost:9000 com.example.directdebit.payment.PaymentService/Create
 ```
-
-> Note: The failure is to be expected if you have not yet provided an implementation of `GetCurrentCounter` in
-> your entity.
-
-
-## Deploying
-
-To deploy your service, install the `kalix` CLI as documented in
-[Setting up a local development environment](https://docs.kalix.io/setting-up/)
-and configure a Docker Registry to upload your docker image to.
-
-You will need to update the `dockerImage` property in the `pom.xml` and refer to
-[Configuring registries](https://docs.kalix.io/projects/container-registries.html)
-for more information on how to make your docker image available to Kalix.
-
-Finally, you use the `kalix` CLI to create a project as described in [Create a new Project](https://docs.kalix.io/projects/create-project.html). Once you have a project you can deploy your service into the project either 
-by using `mvn deploy kalix:deploy` which will package, publish your docker image, and deploy your service to Kalix, 
-or by first packaging and publishing the docker image through `mvn deploy` and 
-then [deploying the image through the `kalix` CLI](https://docs.kalix.io/services/deploy-service.html#_deploy).
+2. Create transaction #1:
+```
+grpcurl -d '{"trans_id":"trans1", "payment_id":"pay1","debit_amount":100}' -plaintext localhost:9000 com.example.directdebit.transaction.TransactionService/Create
+```
+3. Create transaction #2:
+```
+grpcurl -d '{"trans_id":"trans2", "payment_id":"pay1","debit_amount":100}' -plaintext localhost:9000 com.example.directdebit.transaction.TransactionService/Create
+```
+4. Initialize payment:
+```
+grpcurl -d '{"payment_id":"pay1"}' -plaintext localhost:9000 com.example.directdebit.payment.PaymentService/Initialize
+```
+5. Query transactions status by payment:
+```
+grpcurl -d '{"payment_id":"pay1","status_id":4}' -plaintext localhost:9000 com.example.directdebit.transaction.TransactionByPaymentAndStatusView/GetTransactionByPaymentAndStatus
+```
+### Help grpcurls:
+- Get payment state
+```
+grpcurl -d '{"payment_id":"pay1"}' -plaintext localhost:9000 com.example.directdebit.payment.PaymentService/GetPaymentState
+```
+- Get transaction state
+```
+grpcurl -d '{"trans_id":"trans1"}' -plaintext localhost:9000 com.example.directdebit.transaction.TransactionService/GetTransactionState
+```

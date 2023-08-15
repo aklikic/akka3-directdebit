@@ -1,7 +1,5 @@
 package com.example.directdebit;
 
-import com.example.directdebit.fileprocessor.FileProcessorActionImpl;
-import com.example.directdebit.fileprocessor.FileProcessorEntity;
 import com.example.directdebit.payment.PaymentEntity;
 import com.example.directdebit.payment.PaymentProcessorActionImpl;
 import com.example.directdebit.transaction.PaymentToTransactionEventingActionImpl;
@@ -30,10 +28,8 @@ public final class Main {
     // `new Kalix()` instance.
     Config config = ConfigFactory.load();
     return KalixFactory.withComponents(
-      FileProcessorEntity::new,
       ctx -> new PaymentEntity(ctx,config.getInt("payment.credit-delay-seconds")),
       ctx -> new TransactionEntity(ctx, config.getInt("transaction.debit-delay-seconds")),
-      FileProcessorActionImpl::new,
       PaymentProcessorActionImpl::new,
       PaymentToTransactionEventingActionImpl::new,
       TransactionByPaymentAndStatusViewImpl::new,

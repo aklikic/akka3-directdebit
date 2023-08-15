@@ -125,7 +125,7 @@ public class PaymentEntity extends AbstractPaymentEntity {
 
   @Override
   public Effect<PaymentDomain.PaymentState> getPaymentState(PaymentDomain.PaymentState currentState, PaymentApi.GetPaymentStateCommand getPaymentStateCommand) {
-    return effects().reply(currentState());
+    return effects().reply(currentState);
   }
 
   @Override

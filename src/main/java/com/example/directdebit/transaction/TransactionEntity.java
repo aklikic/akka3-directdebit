@@ -78,8 +78,8 @@ public class TransactionEntity extends AbstractTransactionEntity {
       case INITIALIZED:
         TransactionDomain.DebitStarted event = TransactionDomain.DebitStarted.newBuilder()
                 .setTransId(entityId)
-                .setPaymentId(currentState().getPaymentId())
-                .setDebitAmount(currentState().getDebitAmount())
+                .setPaymentId(currentState.getPaymentId())
+                .setDebitAmount(currentState.getDebitAmount())
                 .setEventTimestamp(Timestamps.fromMillis(System.currentTimeMillis()))
                 .build();
         return effects().emitEvent(event).thenReply(updatedState -> Empty.getDefaultInstance());
@@ -121,7 +121,7 @@ public class TransactionEntity extends AbstractTransactionEntity {
 
   @Override
   public Effect<TransactionDomain.TransactionState> getTransactionState(TransactionDomain.TransactionState currentState, TransactionApi.GetTransactionStateCommand getTransactionStateCommand) {
-    return effects().reply(currentState());
+    return effects().reply(currentState);
   }
 
   @Override
