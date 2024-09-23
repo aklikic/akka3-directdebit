@@ -1,16 +1,11 @@
 package com.example.directdebit.payment;
 
-import com.example.directdebit.transaction.TransactionDomain;
 import com.google.protobuf.Empty;
-import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.Timestamps;
-import kalix.javasdk.eventsourcedentity.EventSourcedEntity;
-import kalix.javasdk.eventsourcedentity.EventSourcedEntity.Effect;
 import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Instant;
 import java.util.stream.Collectors;
 
 // This class was initially generated based on the .proto definition by Kalix tooling.

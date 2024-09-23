@@ -16,11 +16,8 @@ message PaymentState {
 
 enum PaymentStatus {
   UNKNOWN = 0;
-
   CREATED = 1;
-
   INITIALIZED = 2;
-
   CREDIT_STARTED = 3;
   CREDITED = 4;
   CREDIT_FAILED = 5;
