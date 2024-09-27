@@ -10,8 +10,8 @@ import java.io.IOException;
 public sealed interface ImportTopicPublicMessage {
     String IMPORT_TOPIC_NAME = "import";
     record FileToImport(String s3fileLocation) implements ImportTopicPublicMessage {
-        public static FileToImport serialize(ByteString rawMessage) throws IOException {
-            return JsonSupport.parseBytes(rawMessage.toByteArray(), FileToImport.class);
+        public static FileToImport serialize(byte[] rawMessage) throws IOException {
+            return JsonSupport.parseBytes(rawMessage, FileToImport.class);
         }
         @JsonIgnore
         public ByteString deSerialize() throws JsonProcessingException {

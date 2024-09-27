@@ -17,17 +17,29 @@ import com.typesafe.config.Config;
 public class PaymentSetup implements ServiceSetup {
 
     private final MySettings mySettings;
-    private final ImportProcessFlow importProcessFlow;
-    private final FileLoader fileLoader;
-    public PaymentSetup(Config config, HttpClientProvider httpClientProvider, Materializer materializer) {
+//    private final ImportProcessFlow importProcessFlow;
+//    private final FileLoader fileLoader;
+//    public PaymentSetup(Config config,
+//                        HttpClientProvider httpClientProvider,
+//                        Materializer materializer
+//    ) {
+//        this.mySettings = new MySettings(config);
+//        this.importProcessFlow = new ImportProcessFlowImpl(httpClientProvider, materializer);
+//        this.fileLoader = new FileLoaderImpl(materializer);
+//    }
+//
+//    @Override
+//    public DependencyProvider createDependencyProvider() {
+//        return new MyDependencyProvider(mySettings,importProcessFlow,fileLoader);
+//    }
+
+    public PaymentSetup(Config config) {
         this.mySettings = new MySettings(config);
-        this.importProcessFlow = new ImportProcessFlowImpl(httpClientProvider, materializer);
-        this.fileLoader = new FileLoaderImpl(materializer);
     }
+
 
     @Override
     public DependencyProvider createDependencyProvider() {
-        return new MyDependencyProvider(mySettings,importProcessFlow,fileLoader);
+        return DependencyProvider.single(mySettings);
     }
-
 }

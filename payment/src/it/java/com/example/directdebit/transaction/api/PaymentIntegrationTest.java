@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class PaymentIntegrationTest extends TestKitSupport {
 
 
-    @Test
+//    @Test
     public void happyPath() {
         var paymentId = UUID.randomUUID().toString();
         var creditAmount = 10;

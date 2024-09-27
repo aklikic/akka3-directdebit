@@ -33,12 +33,12 @@ public class ImportTopicConsumer extends Consumer {
         this.fileLoader = fileLoader;
     }
 
-    public Effect onMessage(ByteString rawMessage){
+    public Effect onMessage(byte[] rawMessage){
         final ImportTopicPublicMessage.FileToImport message;
         try {
             message = ImportTopicPublicMessage.FileToImport.serialize(rawMessage);
         } catch (IOException e) {
-            logger.error("Error serializing input message: [{}]",rawMessage.toStringUtf8());
+            logger.error("Error serializing input message: [{}]",rawMessage);
             return effects().done();
         }
         logger.info("onMessage {}", message);

@@ -32,7 +32,7 @@ public class ImportIntegrationTest extends TestKitSupport {
         transactionClient = new TransactionClient(new HttpClient(testKit.getActorSystem(),"http://localhost:9000"));
         var processFlow = new ImportProcessFlowImpl(transactionClient,paymentClient,testKit.getMaterializer());
         var fileLoader = new FileLoaderImpl(testKit.getMaterializer());
-        dependencyProvider = new MyDependencyProvider(new MySettings(testKit.getActorSystem().settings().config()),processFlow,fileLoader);
+        dependencyProvider = new MyDependencyProvider(new MySettings(1,1,1),processFlow,fileLoader);
         inputTopic = testKit.getTopicIncomingMessages(ImportTopicPublicMessage.IMPORT_TOPIC_NAME);
     }
 
@@ -49,7 +49,8 @@ public class ImportIntegrationTest extends TestKitSupport {
     @Test
     public void happyPath() throws Exception{
 
-        var location = "payment/src/it/resources/import-%s.txt".formatted(UUID.randomUUID().toString());
+        var location = "src/it/resources/import-%s.txt".formatted(UUID.randomUUID().toString());
+        System.out.println(System.getProperty("user.dir"));
         var debitAmount = 10;
         var numberOfPayments = 1;
         var numberOfTransactions = 1;
