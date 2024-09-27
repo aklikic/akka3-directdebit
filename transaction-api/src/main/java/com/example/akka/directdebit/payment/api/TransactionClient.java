@@ -1,6 +1,7 @@
 package com.example.akka.directdebit.payment.api;
 
 import akka.javasdk.http.HttpClient;
+import akka.javasdk.http.HttpClientProvider;
 import akka.javasdk.http.StrictResponse;
 import com.example.akka.directdebit.payment.api.TransactionCommand.Create;
 import com.example.akka.directdebit.payment.api.TransactionCommand.SetDebitFailed;
@@ -14,6 +15,9 @@ import java.util.concurrent.CompletionStage;
 public record TransactionClient(HttpClient httpClient) {
     private static final Logger logger = LoggerFactory.getLogger(TransactionClient.class);
 
+    public TransactionClient(HttpClientProvider httpClientProvider){
+        this(httpClientProvider.httpClientFor("transaction"));
+    }
     public CompletionStage<Ack> create(String transId, Create command){
         logger.info("create [{}]:{}",transId,command);
         return httpClient.POST("/transaction/"+transId+"/create")

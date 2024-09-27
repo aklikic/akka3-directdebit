@@ -1,22 +1,15 @@
 package com.example.akka.directdebit.importer;
 
-import akka.Done;
 import akka.javasdk.http.HttpClient;
 import akka.javasdk.testkit.TestKitSupport;
-import akka.stream.javadsl.Flow;
-import akka.stream.javadsl.Keep;
-import akka.stream.javadsl.Sink;
-import akka.stream.javadsl.Source;
+import akka.stream.javadsl.*;
 import com.example.akka.directdebit.payment.api.*;
 import org.awaitility.Awaitility;
-import org.h2.mvstore.tx.Transaction;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class IntegrationTest extends TestKitSupport {
 
@@ -31,14 +24,16 @@ public class IntegrationTest extends TestKitSupport {
     }
 
     @Test
-    public void happyPath() {
+    public void happyPath() throws Exception{
         var transDebit = 10;
         var numOfPayment = 1;
         var numOfTransactions = 1;
         var parallelismTransactions = 1;
         var parallelismPayment = 1;
         List<Payment> payments =
-                await(mockFileLoad(numOfPayment,numOfTransactions,transDebit)
+                await(
+//                        mockFileLoad(numOfPayment,numOfTransactions,transDebit)
+                        ImportFileUtil.loadFromFile("importer/src/it/resources/import-ff42129a-3a45-475f-a9cf-f5fe9bf0f106.txt", testKit.getMaterializer())
                         .via(paymentProcessFlow(parallelismPayment,parallelismTransactions))
                         .toMat(Sink.seq(),Keep.right())
                         .run(testKit.getMaterializer()));
@@ -56,13 +51,37 @@ public class IntegrationTest extends TestKitSupport {
 
     }
 
-    private Source<Payment,?> mockFileLoad(int numOfPayment, int numOfTransactions, int tranDebitAmount){
-        return Source.range(1,numOfPayment).map(paymentIndex -> {
-                    var paymentId = "p%s".formatted(paymentIndex);
-                    var trans = IntStream.range(1,numOfPayment+1).mapToObj(transIndex -> new Transaction("t%s#%s".formatted(transIndex,paymentId),tranDebitAmount)).collect(Collectors.toList());
-                    return new Payment(paymentId,tranDebitAmount*trans.size(),trans);
-                });
-    }
+//    private Source<Payment,?> loadFromFile(String location){
+//        final Path file = Paths.get(location);
+//        var lines = await(
+//                FileIO.fromPath(file)
+//                        .via(Framing.delimiter(ByteString.fromString("\n"),100,FramingTruncation.ALLOW))
+//                        .map(bs -> bs.decodeString("utf8"))
+//                        .toMat(Sink.seq(),Keep.right())
+//                        .run(testKit.getMaterializer())
+//        );
+//
+//        return Source.from(lines.stream().map(line -> {
+//            var p = line.split("\\#");
+//            var pd = p[0].split("\\/");
+//
+//            var ts = p[1].split(";");
+//            var trans = Stream.of(ts).map(t -> {
+//                var td = t.split("\\/");
+//                return new Transaction(td[0],Integer.parseInt(td[1]));
+//            }).collect(Collectors.toList());
+//            return new Payment(pd[0],Integer.parseInt(pd[1]),trans);
+//        }).collect(Collectors.toList()));
+//
+//    }
+
+//    private Source<Payment,?> mockFileLoad(int numOfPayment, int numOfTransactions, int tranDebitAmount){
+//        return Source.range(1,numOfPayment).map(paymentIndex -> {
+//                    var paymentId = "p%s".formatted(paymentIndex);
+//                    var trans = IntStream.range(1,numOfPayment+1).mapToObj(transIndex -> new Transaction("t%s#%s".formatted(transIndex,paymentId),tranDebitAmount)).collect(Collectors.toList());
+//                    return new Payment(paymentId,tranDebitAmount*trans.size(),trans);
+//                });
+//    }
 
     private CompletionStage<TransactionCommandResponse.Ack> processCreateTransactions(int parallelismTransactions, Payment payment){
         return Source.from(payment.trans())
@@ -87,8 +106,8 @@ public class IntegrationTest extends TestKitSupport {
                 );
     }
 
-    record Transaction(String transId, int debitAmount){}
-    record Payment(String paymentId, int creditAmount, List<Transaction> trans){}
+//    record Transaction(String transId, int debitAmount){}
+//    record Payment(String paymentId, int creditAmount, List<Transaction> trans){}
 
 
 }

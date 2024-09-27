@@ -21,7 +21,7 @@ public class PaymentEntityTest {
 
     var paymentId = "p1";
     var creditAmount = 10;
-    EventSourcedTestKit<PaymentState, PaymentEvent, PaymentEntity> testKit = EventSourcedTestKit.of(paymentId, ctx -> new PaymentEntity(ctx, new MySettings(paymentCreditDelaySeconds)));
+    EventSourcedTestKit<PaymentState, PaymentEvent, PaymentEntity> testKit = EventSourcedTestKit.of(paymentId, ctx -> new PaymentEntity(ctx, new MySettings(paymentCreditDelaySeconds,1,1)));
 
 
     //create
