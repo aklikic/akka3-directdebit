@@ -16,7 +16,7 @@ import com.typesafe.config.Config;
 @Acl(allow = @Acl.Matcher(principal = Acl.Principal.INTERNET))
 public class PaymentSetup implements ServiceSetup {
 
-    private final MySettings mySettings;
+//    private final MySettings mySettings;
 //    private final ImportProcessFlow importProcessFlow;
 //    private final FileLoader fileLoader;
 //    public PaymentSetup(Config config,
@@ -33,13 +33,13 @@ public class PaymentSetup implements ServiceSetup {
 //        return new MyDependencyProvider(mySettings,importProcessFlow,fileLoader);
 //    }
 
-    public PaymentSetup(Config config) {
-        this.mySettings = new MySettings(config);
-    }
-
-
-    @Override
-    public DependencyProvider createDependencyProvider() {
-        return DependencyProvider.single(mySettings);
-    }
+//    public PaymentSetup(Config config) {
+//        this.mySettings = new MySettings(config);
+//    }
+//
+//
+//    @Override
+//    public DependencyProvider createDependencyProvider() {
+//        return DependencyProvider.single(mySettings);
+//    }
 }
