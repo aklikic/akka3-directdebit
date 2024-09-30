@@ -25,6 +25,7 @@ public class PaymentSetup implements ServiceSetup {
                         ComponentClient componentClient,
                         Materializer materializer
     ) {
+        System.out.println(System.getProperty("kalix.proxy.eventing.kafka.bootstrap-servers"));
         this.mySettings = new MySettings(config);
         this.importProcessFlow = new ImportProcessFlowImpl(httpClientProvider, componentClient, materializer);
         this.fileLoader = new FileLoaderImpl(materializer);

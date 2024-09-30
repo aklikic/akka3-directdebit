@@ -13,19 +13,20 @@ import com.example.akka.directdebit.payment.stream.ImportProcessFlow;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Test;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 public class ImportIntegrationTest extends TestKitSupport {
 
-    private PaymentClient paymentClient;
     private TransactionClient transactionClient;
-    private MyDependencyProvider dependencyProvider;
     private EventingTestKit.IncomingMessages inputTopic;
     @Override
     public void beforeAll() {
         super.beforeAll();
-        transactionClient = new TransactionClient(new HttpClientImpl(testKit.getActorSystem(),"http://localhost:9000"));
+//        transactionClient = new TransactionClient(new HttpClientImpl(testKit.getActorSystem(),"http://localhost:9000"));
+        transactionClient = new TransactionClient(testKit.getHttpClientProvider());
         inputTopic = testKit.getTopicIncomingMessages(ImportTopicPublicMessage.IMPORT_TOPIC_NAME);
     }
 
@@ -38,7 +39,7 @@ public class ImportIntegrationTest extends TestKitSupport {
     @Test
     public void happyPath() throws Exception{
 
-        var location = "src/it/resources/import-%s.txt".formatted(UUID.randomUUID().toString());
+        var location = "filestore/import-%s.txt".formatted(UUID.randomUUID().toString());
         var debitAmount = 10;
         var numberOfPayments = 1;
         var numberOfTransactions = 1;
@@ -62,7 +63,7 @@ public class ImportIntegrationTest extends TestKitSupport {
                     return await(transactionClient.queryByPaymentAndStatus(new TransactionByPaymentAndStatusViewModel.QueryRequest(payment.paymentId(), TransactionCommandResponse.ApiTransactionStatus.DEBIT_STARTED.name()))).records().size() == payment.trans().size();
                 });
 
-
+        Files.delete(Path.of(location));
     }
 
 }
