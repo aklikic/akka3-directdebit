@@ -2,7 +2,7 @@ package com.example.directdebit.transaction.api;
 
 import akka.actor.ActorSystem;
 import akka.stream.Materializer;
-import com.example.akka.directdebit.payment.misc.ImportFileUtil;
+import com.example.akka.directdebit.payment.stream.ImportFileUtil;
 
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;

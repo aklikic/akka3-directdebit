@@ -1,4 +1,4 @@
-package com.example.akka.directdebit.payment.misc;
+package com.example.akka.directdebit.payment.stream;
 
 import akka.stream.javadsl.Source;
 

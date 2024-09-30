@@ -9,6 +9,7 @@ import akka.http.javadsl.model.headers.CacheControl;
 import akka.http.javadsl.model.headers.CacheDirectives;
 import akka.http.javadsl.model.headers.Connection;
 import akka.javasdk.JsonSupport;
+import akka.javasdk.annotations.Acl;
 import akka.javasdk.annotations.http.Get;
 import akka.javasdk.annotations.http.HttpEndpoint;
 import akka.javasdk.annotations.http.Patch;
@@ -30,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Arrays;
 import java.util.concurrent.CompletionStage;
 
+@Acl(allow = @Acl.Matcher(principal = Acl.Principal.ALL))
 @HttpEndpoint("/transaction")
 public class TransactionEndpoint {
     private static final Logger logger = LoggerFactory.getLogger(TransactionEndpoint.class);

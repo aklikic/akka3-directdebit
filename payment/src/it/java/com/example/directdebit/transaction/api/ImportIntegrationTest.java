@@ -1,18 +1,15 @@
 package com.example.directdebit.transaction.api;
 
-import akka.javasdk.http.HttpClient;
+import akka.javasdk.impl.http.HttpClientImpl;
 import akka.javasdk.testkit.EventingTestKit;
 import akka.javasdk.testkit.TestKit;
 import akka.javasdk.testkit.TestKitSupport;
 import akka.stream.javadsl.Keep;
 import akka.stream.javadsl.Sink;
-import com.example.akka.directdebit.payment.api.*;
-import com.example.akka.directdebit.payment.misc.FileLoaderImpl;
-import com.example.akka.directdebit.payment.misc.ImportFileUtil;
-import com.example.akka.directdebit.payment.misc.ImportProcessFlow;
-import com.example.akka.directdebit.payment.misc.ImportProcessFlowImpl;
 import com.example.akka.directdebit.payment.MyDependencyProvider;
-import com.example.akka.directdebit.payment.MySettings;
+import com.example.akka.directdebit.payment.api.*;
+import com.example.akka.directdebit.payment.stream.ImportFileUtil;
+import com.example.akka.directdebit.payment.stream.ImportProcessFlow;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Test;
 
@@ -28,11 +25,7 @@ public class ImportIntegrationTest extends TestKitSupport {
     @Override
     public void beforeAll() {
         super.beforeAll();
-        paymentClient = new PaymentClient(new HttpClient(testKit.getActorSystem(),"http://localhost:9001"));
-        transactionClient = new TransactionClient(new HttpClient(testKit.getActorSystem(),"http://localhost:9000"));
-        var processFlow = new ImportProcessFlowImpl(transactionClient,paymentClient,testKit.getMaterializer());
-        var fileLoader = new FileLoaderImpl(testKit.getMaterializer());
-        dependencyProvider = new MyDependencyProvider(new MySettings(1,1,1),processFlow,fileLoader);
+        transactionClient = new TransactionClient(new HttpClientImpl(testKit.getActorSystem(),"http://localhost:9000"));
         inputTopic = testKit.getTopicIncomingMessages(ImportTopicPublicMessage.IMPORT_TOPIC_NAME);
     }
 
@@ -41,16 +34,11 @@ public class ImportIntegrationTest extends TestKitSupport {
         return TestKit.Settings.DEFAULT.withTopicIncomingMessages(ImportTopicPublicMessage.IMPORT_TOPIC_NAME);
     }
 
-    @Override
-    public <T> T getDependency(Class<T> aClass) {
-        return dependencyProvider.getDependency(aClass);
-    }
 
     @Test
     public void happyPath() throws Exception{
 
         var location = "src/it/resources/import-%s.txt".formatted(UUID.randomUUID().toString());
-        System.out.println(System.getProperty("user.dir"));
         var debitAmount = 10;
         var numberOfPayments = 1;
         var numberOfTransactions = 1;
@@ -59,15 +47,6 @@ public class ImportIntegrationTest extends TestKitSupport {
 
         var generatedPaymentsSource = ImportFileUtil.generate(paymentPrefix, numberOfPayments,numberOfTransactions,debitAmount);
         await(ImportFileUtil.storeToFile(generatedPaymentsSource,location,testKit.getMaterializer()));
-
-//        List<ImportProcessFlow.Payment> payments =
-//                await(
-////                        importFileUtil.mockFileLoad(UUID.randomUUID().toString(),numOfPayment,numOfTransactions,transDebit)
-//                        processFlow.loadFromFile("src/it/resources/import-ff42129a-3a45-475f-a9cf-f5fe9bf0f106.txt")
-//                        .via(processFlow.flow(parallelismPayment,parallelismTransactions))
-//                        .toMat(Sink.seq(),Keep.right())
-//                        .run(testKit.getMaterializer()));
-
 
         var payments = await(generatedPaymentsSource.toMat(Sink.seq(), Keep.right()).run(testKit.getMaterializer()));
         inputTopic.publish(new ImportTopicPublicMessage.FileToImport(location).deSerialize());
@@ -82,6 +61,7 @@ public class ImportIntegrationTest extends TestKitSupport {
                     ImportProcessFlow.Payment payment = payments.get(0);
                     return await(transactionClient.queryByPaymentAndStatus(new TransactionByPaymentAndStatusViewModel.QueryRequest(payment.paymentId(), TransactionCommandResponse.ApiTransactionStatus.DEBIT_STARTED.name()))).records().size() == payment.trans().size();
                 });
+
 
     }
 

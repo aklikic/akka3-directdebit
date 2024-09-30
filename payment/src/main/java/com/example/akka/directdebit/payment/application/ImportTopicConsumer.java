@@ -7,11 +7,10 @@ import akka.javasdk.consumer.Consumer;
 import akka.stream.Materializer;
 import akka.stream.javadsl.Keep;
 import akka.stream.javadsl.Sink;
-import com.example.akka.directdebit.payment.misc.FileLoader;
-import com.example.akka.directdebit.payment.misc.ImportProcessFlow;
+import com.example.akka.directdebit.payment.stream.FileLoader;
+import com.example.akka.directdebit.payment.stream.ImportProcessFlow;
 import com.example.akka.directdebit.payment.MySettings;
 import com.example.akka.directdebit.payment.api.ImportTopicPublicMessage;
-import com.google.protobuf.ByteString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +31,6 @@ public class ImportTopicConsumer extends Consumer {
         this.processFlow = processFlow;
         this.fileLoader = fileLoader;
     }
-
     public Effect onMessage(byte[] rawMessage){
         final ImportTopicPublicMessage.FileToImport message;
         try {
@@ -47,7 +45,7 @@ public class ImportTopicConsumer extends Consumer {
                 .toMat(Sink.ignore(), Keep.right())
                 .run(materializer)
                 .exceptionally(e-> {
-                    logger.error("Error processing flow for message (will retry): {}",message);
+                    logger.error("Error processing flow for message (will retry): {}",e);
                     return Done.getInstance();
                 });
         return effects().asyncDone(run);

@@ -7,7 +7,7 @@ import akka.javasdk.annotations.Setup;
 import com.typesafe.config.Config;
 
 @Setup
-@Acl(allow = @Acl.Matcher(principal = Acl.Principal.INTERNET))
+@Acl(allow = @Acl.Matcher(principal = Acl.Principal.ALL))
 public class TransactionSetup implements ServiceSetup {
 
     private final Config config;
