@@ -1,5 +1,4 @@
 *.class
 .idea
 target/
-kalix-directdebit.iml
-dependency-reduced-pom.xml
+*.iml

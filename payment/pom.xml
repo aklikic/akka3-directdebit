@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.example.akka</groupId>
+        <artifactId>direct-debit</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>payment</artifactId>
+
+    <properties>
+        <!-- For Docker setup see https://docs.kalix.io/projects/container-registries.html -->
+        <container.registry>kcr.us-east-1.kalix.dev</container.registry>
+        <organization>lightbend</organization>
+    </properties>
+
+
+    <dependencies>
+
+        <dependency>
+            <groupId>com.example.akka.directdebit</groupId>
+            <artifactId>directdebit-util</artifactId>
+            <version>${direct-debit.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.example.akka.directdebit</groupId>
+            <artifactId>transaction-api</artifactId>
+            <version>${direct-debit.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.example.akka.directdebit</groupId>
+            <artifactId>payment-api</artifactId>
+            <version>${direct-debit.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.10.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.10.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+            <version>4.2.0</version>
+            <scope>test</scope>
+        </dependency>
+
+
+    </dependencies>
+</project>
