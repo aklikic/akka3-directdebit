@@ -25,7 +25,7 @@ public class PaymentSetup implements ServiceSetup {
                         ComponentClient componentClient,
                         Materializer materializer
     ) {
-        System.out.println(System.getProperty("kalix.proxy.eventing.kafka.bootstrap-servers"));
+//        System.out.println(System.getProperty("kalix.proxy.eventing.kafka.bootstrap-servers"));
         this.mySettings = new MySettings(config);
         this.importProcessFlow = new ImportProcessFlowImpl(httpClientProvider, componentClient, materializer);
         this.fileLoader = new FileLoaderImpl(materializer);
@@ -36,13 +36,4 @@ public class PaymentSetup implements ServiceSetup {
         return new MyDependencyProvider(mySettings,importProcessFlow,fileLoader);
     }
 
-//    public PaymentSetup(Config config) {
-//        this.mySettings = new MySettings(config);
-//    }
-//
-//
-//    @Override
-//    public DependencyProvider createDependencyProvider() {
-//        return DependencyProvider.single(mySettings);
-//    }
 }

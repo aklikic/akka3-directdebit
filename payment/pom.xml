@@ -13,10 +13,8 @@
 
     <properties>
         <!-- For Docker setup see https://docs.kalix.io/projects/container-registries.html -->
-        <container.registry>kcr.us-east-1.kalix.io</container.registry>
-        <organization>lightbend-eng</organization>
-<!--        <akka.javasdk.dev-mode.http-port>9001</akka.javasdk.dev-mode.http-port>-->
-<!--        <kalix.proxy.eventing.kafka.bootstrap-servers>localhost:29091</kalix.proxy.eventing.kafka.bootstrap-servers>-->
+        <container.registry>kcr.us-east-1.kalix.dev</container.registry>
+        <organization>lightbend</organization>
     </properties>
 
 
