@@ -1,4 +1,4 @@
-package com.example.akka.directdebit.payment.stream;
+package com.example.akka.directdebit.payment.fileimport;
 
 import akka.javasdk.client.ComponentClient;
 import akka.javasdk.http.HttpClientProvider;

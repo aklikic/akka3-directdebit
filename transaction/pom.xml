@@ -16,8 +16,11 @@
 
     <properties>
         <!-- For Docker setup see https://docs.kalix.io/projects/container-registries.html -->
-        <container.registry>kcr.us-east-1.kalix.dev</container.registry>
-        <organization>lightbend</organization>
+<!--        <container.registry>kcr.us-east-1.kalix.dev</container.registry>-->
+<!--        <organization>lightbend</organization>-->
+        <dockerImage>aklikic/${project.artifactId}</dockerImage>
+        <dockerTag>${project.version}-${build.timestamp}</dockerTag>
+        <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
     </properties>
 
     <dependencies>

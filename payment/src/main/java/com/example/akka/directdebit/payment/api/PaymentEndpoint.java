@@ -1,10 +1,12 @@
 package com.example.akka.directdebit.payment.api;
 
+import akka.javasdk.annotations.Acl;
 import akka.javasdk.annotations.http.Get;
 import akka.javasdk.annotations.http.HttpEndpoint;
 import akka.javasdk.annotations.http.Patch;
 import akka.javasdk.annotations.http.Post;
 import akka.javasdk.client.ComponentClient;
+import com.example.akka.directdebit.payment.fileimport.ImportFileProcessor;
 import com.example.akka.directdebit.payment.api.PaymentCommand.*;
 import com.example.akka.directdebit.payment.api.PaymentCommandResponse.*;
 import com.example.akka.directdebit.payment.application.PaymentEntity;
@@ -13,14 +15,17 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CompletionStage;
 
+@Acl(allow = @Acl.Matcher(principal = Acl.Principal.INTERNET))
 @HttpEndpoint("/payment")
 public class PaymentEndpoint {
     private static final Logger logger = LoggerFactory.getLogger(PaymentEndpoint.class);
 
     private final ComponentClient componentClient;
+    private final ImportFileProcessor importTopicMessageProcessor;
 
-    public PaymentEndpoint(ComponentClient componentClient) {
+    public PaymentEndpoint(ComponentClient componentClient, ImportFileProcessor importTopicMessageProcessor) {
         this.componentClient = componentClient;
+        this.importTopicMessageProcessor = importTopicMessageProcessor;
     }
 
     @Post("/{id}/create")
@@ -33,11 +38,7 @@ public class PaymentEndpoint {
         logger.info("initialize [{}]",paymentId);
         return componentClient.forEventSourcedEntity(paymentId).method(PaymentEntity::initialize).invokeAsync();
     }
-//    @Patch("/{id}/start-credit")
-//    public CompletionStage<Ack> startCredit(String paymentId){
-//        logger.info("startCredit [{}]",paymentId);
-//        return componentClient.forEventSourcedEntity(paymentId).method(PaymentEntity::startCredit).invokeAsync();
-//    }
+
     @Patch("/{id}/set-credit-failed")
     public CompletionStage<Ack> setCreditFailed(String paymentId, SetCreditFailed command){
         logger.info("setCreditFailed [{}]: {}",paymentId, command);
@@ -52,6 +53,15 @@ public class PaymentEndpoint {
     public CompletionStage<GetPaymentStateReply> getTransactionState(String paymentId){
         logger.info("get [{}]",paymentId);
         return componentClient.forEventSourcedEntity(paymentId).method(PaymentEntity::getPaymentState).invokeAsync();
+    }
+    @Post("/import")
+    public CompletionStage<Ack> importFile(ImportMessage.FileToImport message){
+        return importTopicMessageProcessor.process(message)
+                .thenApply(ack -> Ack.ok())
+                .exceptionally(ex -> {
+                    logger.error("importFile: {}",ex);
+                    return Ack.error(PaymentCommandError.IMPORT_FILE_PROCESSING_ERROR);
+                });
     }
 
 }

@@ -58,7 +58,7 @@ public class PaymentEntity extends EventSourcedEntity<PaymentState, PaymentEvent
         return handleStateCommandProcessResult(currentState().handleSetCredited(paymentId));
     }
 
-    public Effect<GetPaymentStateReply> getPaymentState(){
+    public ReadOnlyEffect<GetPaymentStateReply> getPaymentState(){
         logger.info("getPaymentState [{}]",paymentId);
         if(currentState().isEmpty())
             return effects().reply(GetPaymentStateReply.error(PaymentCommandError.PAYMENT_NOT_FOUND));

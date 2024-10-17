@@ -1,53 +1,37 @@
-# kalix-directdebit
+# Direct Debit 
+# Test locally
+Generate file:
+```shell
+mvn exec:java -Dexec.mainClass="com.example.directdebit.transaction.api.ImportFileGenerator"
+```
+Trigger import:
+```shell
+curl -XPOST -d '{
+  "fileLocation": "filestore/import-6501dfd1-bb8c-4cec-9f29-de36e43b9695.txt"
+}' http://localhost:9001/payment/import -v -H "Content-Type: application/json"
+```
 
-## Unit test
-Unit tests covers isolated tests of each Kalix component, in our case `Entity` and `Action` (Action tests are not implemented yet). <br>
-Run unit test:
-```
-mvn test
-```
-## Integration test
-`it/java/com/example/directdebit/SystemIntegrationTest` simulates file importer and uses `payment` and `transaction` services.<br>
-Run integration test:
-```
-mvn -Pit verify
-```
-## Run locally
-Start `Kalix proxy` and `UF` (user function)
-```
-mvn kalix:runAll
-```
-GRPC server is exposed on `localhost:9000`<br>
-Local run uses in memory database so when run is complete data is lost. 
+# Deploy
+## Configure KCR (Kalix Container Registry)
+https://docs.kalix.io/operations/container-registries.html#_kalix_container_registry
 
-## Test locally
-Example how to create payment with two transactions.<br>
-1. Create payment:
+## Push image to KCR and deploy
+In each Maven module/project (`transaction`, `payment`) configure these properties in `pom.xml` (`container.registry`, `organization`) and run:
+```shell
+mvn deploy
 ```
-grpcurl -d '{"payment_id":"pay1","credit_amount":200,"transactions":[{"trans_id":"trans1"},{"trans_id":"trans2"}]}' -plaintext localhost:9000 com.example.directdebit.payment.PaymentService/Create
+Copy the image URL and deploy service to Kalix:
+```shell
+kalix service deploy --with-embedded-runtime <service name> <pushed image url>
 ```
-2. Create transaction #1:
+
+# Demo (test) in Cloud runtime
+## Set proxies:
+```shell
+kalix service proxy transaction --port 9003
 ```
-grpcurl -d '{"trans_id":"trans1", "payment_id":"pay1","debit_amount":100}' -plaintext localhost:9000 com.example.directdebit.transaction.TransactionService/Create
+```shell
+kalix service proxy payment --port 9001
 ```
-3. Create transaction #2:
-```
-grpcurl -d '{"trans_id":"trans2", "payment_id":"pay1","debit_amount":100}' -plaintext localhost:9000 com.example.directdebit.transaction.TransactionService/Create
-```
-4. Initialize payment:
-```
-grpcurl -d '{"payment_id":"pay1"}' -plaintext localhost:9000 com.example.directdebit.payment.PaymentService/Initialize
-```
-5. Query transactions status by payment:
-```
-grpcurl -d '{"payment_id":"pay1","status_id":4}' -plaintext localhost:9000 com.example.directdebit.transaction.TransactionByPaymentAndStatusView/GetTransactionByPaymentAndStatus
-```
-### Help grpcurls:
-- Get payment state
-```
-grpcurl -d '{"payment_id":"pay1"}' -plaintext localhost:9000 com.example.directdebit.payment.PaymentService/GetPaymentState
-```
-- Get transaction state
-```
-grpcurl -d '{"trans_id":"trans1"}' -plaintext localhost:9000 com.example.directdebit.transaction.TransactionService/GetTransactionState
-```
+### Test (demo)
+Run the same commands as with local test.

@@ -1,15 +1,13 @@
 package com.example.directdebit.transaction.api;
 
-import akka.javasdk.impl.http.HttpClientImpl;
 import akka.javasdk.testkit.EventingTestKit;
 import akka.javasdk.testkit.TestKit;
 import akka.javasdk.testkit.TestKitSupport;
 import akka.stream.javadsl.Keep;
 import akka.stream.javadsl.Sink;
-import com.example.akka.directdebit.payment.MyDependencyProvider;
 import com.example.akka.directdebit.payment.api.*;
-import com.example.akka.directdebit.payment.stream.ImportFileUtil;
-import com.example.akka.directdebit.payment.stream.ImportProcessFlow;
+import com.example.akka.directdebit.payment.fileimport.ImportFileUtil;
+import com.example.akka.directdebit.payment.fileimport.ImportProcessFlow;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Test;
 
@@ -27,19 +25,19 @@ public class ImportIntegrationTest extends TestKitSupport {
         super.beforeAll();
 //        transactionClient = new TransactionClient(new HttpClientImpl(testKit.getActorSystem(),"http://localhost:9000"));
         transactionClient = new TransactionClient(testKit.getHttpClientProvider());
-        inputTopic = testKit.getTopicIncomingMessages(ImportTopicPublicMessage.IMPORT_TOPIC_NAME);
+        inputTopic = testKit.getTopicIncomingMessages(ImportMessage.IMPORT_TOPIC_NAME);
     }
 
     @Override
     protected TestKit.Settings testKitSettings() {
-        return TestKit.Settings.DEFAULT.withTopicIncomingMessages(ImportTopicPublicMessage.IMPORT_TOPIC_NAME);
+        return TestKit.Settings.DEFAULT.withTopicIncomingMessages(ImportMessage.IMPORT_TOPIC_NAME);
     }
 
 
     @Test
     public void happyPath() throws Exception{
 
-        var location = "filestore/import-%s.txt".formatted(UUID.randomUUID().toString());
+        var location = "s3://import-%s.txt".formatted(UUID.randomUUID().toString());
         var debitAmount = 10;
         var numberOfPayments = 1;
         var numberOfTransactions = 1;
@@ -50,7 +48,7 @@ public class ImportIntegrationTest extends TestKitSupport {
         await(ImportFileUtil.storeToFile(generatedPaymentsSource,location,testKit.getMaterializer()));
 
         var payments = await(generatedPaymentsSource.toMat(Sink.seq(), Keep.right()).run(testKit.getMaterializer()));
-        inputTopic.publish(new ImportTopicPublicMessage.FileToImport(location).deSerialize());
+        inputTopic.publish(new ImportMessage.FileToImport(location).deSerialize());
 
         //query
         Awaitility.await()

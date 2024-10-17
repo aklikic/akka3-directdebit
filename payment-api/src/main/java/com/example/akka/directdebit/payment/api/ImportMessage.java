@@ -7,9 +7,9 @@ import com.google.protobuf.ByteString;
 
 import java.io.IOException;
 
-public sealed interface ImportTopicPublicMessage {
+public sealed interface ImportMessage {
     String IMPORT_TOPIC_NAME = "import";
-    record FileToImport(String s3fileLocation) implements ImportTopicPublicMessage {
+    record FileToImport(String fileLocation) implements ImportMessage {
         public static FileToImport serialize(byte[] rawMessage) throws IOException {
             return JsonSupport.parseBytes(rawMessage, FileToImport.class);
         }

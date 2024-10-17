@@ -62,7 +62,7 @@ public class TransactionEntity extends EventSourcedEntity<TransactionState, Tran
         return handleStateCommandProcessResult(currentState().handleSetDebited(transId));
     }
 
-    public Effect<GetTransactionStateReply> getTransactionState(){
+    public ReadOnlyEffect<GetTransactionStateReply> getTransactionState(){
         logger.info("getTransactionState [{}]",transId);
         if(currentState().isEmpty())
             return effects().reply(GetTransactionStateReply.error(TransactionCommandError.TRANSACTION_NOT_FOUND));

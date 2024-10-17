@@ -15,6 +15,7 @@
         <!-- For Docker setup see https://docs.kalix.io/projects/container-registries.html -->
         <container.registry>kcr.us-east-1.kalix.dev</container.registry>
         <organization>lightbend</organization>
+        <kalix.proxy.eventing.kafka.bootstrap-servers>localhost:9092</kalix.proxy.eventing.kafka.bootstrap-servers>
     </properties>
 
 
@@ -36,6 +37,33 @@
             <groupId>com.example.akka.directdebit</groupId>
             <artifactId>payment-api</artifactId>
             <version>${direct-debit.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.lightbend.akka</groupId>
+            <artifactId>akka-stream-alpakka-s3_2.13</artifactId>
+            <version>8.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-stream_2.13</artifactId>
+            <version>2.9.5</version>
+        </dependency>
+        <dependency>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-http_2.13</artifactId>
+            <version>10.6.3</version>
+        </dependency>
+        <dependency>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-http-xml_2.13</artifactId>
+            <version>10.6.3</version>
+        </dependency>
+        <dependency>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-pki_2.13</artifactId>
+            <version>2.9.5</version>
         </dependency>
 
         <dependency>

@@ -1,53 +1,39 @@
 package com.example.akka.directdebit.payment.application;
 
-import akka.Done;
 import akka.javasdk.annotations.ComponentId;
 import akka.javasdk.annotations.Consume;
 import akka.javasdk.consumer.Consumer;
-import akka.stream.Materializer;
-import akka.stream.javadsl.Keep;
-import akka.stream.javadsl.Sink;
-import com.example.akka.directdebit.payment.stream.FileLoader;
-import com.example.akka.directdebit.payment.stream.ImportProcessFlow;
-import com.example.akka.directdebit.payment.MySettings;
-import com.example.akka.directdebit.payment.api.ImportTopicPublicMessage;
+import com.example.akka.directdebit.payment.fileimport.ImportFileProcessor;
+import com.example.akka.directdebit.payment.api.ImportMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-@ComponentId("import-topic-consumer")
-@Consume.FromTopic(ImportTopicPublicMessage.IMPORT_TOPIC_NAME)
+//@ComponentId("import-topic-consumer")
+//@Consume.FromTopic(ImportMessage.IMPORT_TOPIC_NAME)
 public class ImportTopicConsumer extends Consumer {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final ImportFileProcessor importFileProcessor;
 
-    private final Materializer materializer;
-    private final MySettings mySettings;
-    private final ImportProcessFlow processFlow;
-    private final FileLoader fileLoader;
-    public ImportTopicConsumer(ImportProcessFlow processFlow, FileLoader fileLoader, MySettings mySettings, Materializer materializer) {
-        this.materializer = materializer;
-        this.mySettings =  mySettings;
-        this.processFlow = processFlow;
-        this.fileLoader = fileLoader;
+    public ImportTopicConsumer(ImportFileProcessor importFileProcessor) {
+        this.importFileProcessor = importFileProcessor;
     }
+
     public Effect onMessage(byte[] rawMessage){
-        final ImportTopicPublicMessage.FileToImport message;
+        final ImportMessage.FileToImport message;
         try {
-            message = ImportTopicPublicMessage.FileToImport.serialize(rawMessage);
+            message = ImportMessage.FileToImport.serialize(rawMessage);
         } catch (IOException e) {
             logger.error("Error serializing input message: [{}]",rawMessage);
             return effects().done();
         }
         logger.info("onMessage {}", message);
-        var run = fileLoader.load(message.s3fileLocation())
-                .via(processFlow.flow(mySettings.importPaymentParallelism, mySettings.importTransactionParallelism))
-                .toMat(Sink.ignore(), Keep.right())
-                .run(materializer)
+        var process = importFileProcessor.process(message)
                 .exceptionally(e-> {
                     logger.error("Error processing flow for message (will retry): {}",e);
-                    return Done.getInstance();
+                    throw new RuntimeException(e);
                 });
-        return effects().asyncDone(run);
+        return effects().asyncDone(process);
     }
 }
