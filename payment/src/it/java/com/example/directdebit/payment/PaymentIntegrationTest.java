@@ -1,7 +1,7 @@
-package com.example.directdebit.transaction.api;
+package com.example.directdebit.payment;
 
 import akka.javasdk.testkit.TestKitSupport;
-import com.example.akka.directdebit.payment.api.PaymentClient;
+import com.example.akka.directdebit.payment.api.HttpPaymentClient;
 import com.example.akka.directdebit.payment.api.PaymentCommand;
 import com.example.akka.directdebit.payment.api.PaymentCommandError;
 import com.example.akka.directdebit.payment.api.PaymentCommandResponse.ApiPaymentStatus;
@@ -84,10 +84,10 @@ public class PaymentIntegrationTest extends TestKitSupport {
 
 
 
-    private PaymentClient transactionClient;
-    private PaymentClient getClient(){
+    private HttpPaymentClient transactionClient;
+    private HttpPaymentClient getClient(){
         if(transactionClient==null){
-            transactionClient = new PaymentClient(httpClient);
+            transactionClient = new HttpPaymentClient(httpClient);
         }
         return transactionClient;
     }

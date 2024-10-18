@@ -12,8 +12,6 @@ import com.example.akka.directdebit.payment.domain.TransactionEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.Record;
-
 @ComponentId("view_transactions_by_payment_and_status")
 public class TransactionByPaymentAndStatusView extends View {
 

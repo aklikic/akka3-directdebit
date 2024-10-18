@@ -15,7 +15,6 @@ import akka.javasdk.annotations.http.HttpEndpoint;
 import akka.javasdk.annotations.http.Patch;
 import akka.javasdk.annotations.http.Post;
 import akka.javasdk.client.ComponentClient;
-import akka.javasdk.view.View;
 import akka.stream.javadsl.Source;
 import akka.util.ByteString;
 import com.example.akka.directdebit.payment.api.TransactionCommand.Create;
@@ -24,7 +23,6 @@ import com.example.akka.directdebit.payment.api.TransactionCommandResponse.Ack;
 import com.example.akka.directdebit.payment.api.TransactionCommandResponse.GetTransactionStateReply;
 import com.example.akka.directdebit.payment.application.TransactionByPaymentAndStatusView;
 import com.example.akka.directdebit.payment.application.TransactionEntity;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

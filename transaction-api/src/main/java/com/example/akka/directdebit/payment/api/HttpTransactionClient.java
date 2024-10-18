@@ -12,10 +12,10 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CompletionStage;
 
-public record TransactionClient(HttpClient httpClient) {
-    private static final Logger logger = LoggerFactory.getLogger(TransactionClient.class);
+public record HttpTransactionClient(HttpClient httpClient) {
+    private static final Logger logger = LoggerFactory.getLogger(HttpTransactionClient.class);
 
-    public TransactionClient(HttpClientProvider httpClientProvider){
+    public HttpTransactionClient(HttpClientProvider httpClientProvider){
         this(httpClientProvider.httpClientFor("transaction"));
     }
     public CompletionStage<Ack> create(String transId, Create command){

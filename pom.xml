@@ -4,7 +4,7 @@
   <parent>
     <groupId>io.akka</groupId>
     <artifactId>akka-javasdk-parent</artifactId>
-    <version>3.0.0-M6</version>
+    <version>3.0.0-M7</version>
   </parent>
   <groupId>com.example.akka</groupId>
   <artifactId>direct-debit</artifactId>
@@ -41,10 +41,11 @@
 
   <modules>
     <module>directdebit-util</module>
+    <module>fileimport-util</module>
     <module>payment-api</module>
     <module>transaction-api</module>
     <module>transaction</module>
-        <module>payment</module>
+    <module>payment</module>
 <!--    <module>importer</module>-->
   </modules>
 

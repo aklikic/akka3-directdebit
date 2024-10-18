@@ -7,7 +7,7 @@ mvn exec:java -Dexec.mainClass="com.example.directdebit.transaction.api.ImportFi
 Trigger import:
 ```shell
 curl -XPOST -d '{
-  "fileLocation": "filestore/import-6501dfd1-bb8c-4cec-9f29-de36e43b9695.txt"
+  "fileLocation": "s3://import-38da4ff6-bfee-4f3e-9577-f31db7984c9c.txt"
 }' http://localhost:9001/payment/import -v -H "Content-Type: application/json"
 ```
 

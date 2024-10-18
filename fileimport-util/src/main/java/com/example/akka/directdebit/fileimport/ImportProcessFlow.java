@@ -1,4 +1,4 @@
-package com.example.akka.directdebit.payment.fileimport;
+package com.example.akka.directdebit.fileimport;
 
 import akka.stream.javadsl.Flow;
 

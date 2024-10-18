@@ -1,7 +1,7 @@
 package com.example.akka.directdebit.payment;
 
 import akka.javasdk.DependencyProvider;
-import com.example.akka.directdebit.payment.fileimport.ImportFileProcessor;
+import com.example.akka.directdebit.fileimport.ImportFileProcessor;
 
 public record MyDependencyProvider(MySettings mySettings, ImportFileProcessor messageProcessor) implements DependencyProvider {
 

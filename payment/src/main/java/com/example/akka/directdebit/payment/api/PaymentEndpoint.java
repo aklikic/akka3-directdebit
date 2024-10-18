@@ -6,9 +6,11 @@ import akka.javasdk.annotations.http.HttpEndpoint;
 import akka.javasdk.annotations.http.Patch;
 import akka.javasdk.annotations.http.Post;
 import akka.javasdk.client.ComponentClient;
-import com.example.akka.directdebit.payment.fileimport.ImportFileProcessor;
-import com.example.akka.directdebit.payment.api.PaymentCommand.*;
-import com.example.akka.directdebit.payment.api.PaymentCommandResponse.*;
+import com.example.akka.directdebit.fileimport.ImportFileProcessor;
+import com.example.akka.directdebit.payment.api.PaymentCommand.Create;
+import com.example.akka.directdebit.payment.api.PaymentCommand.SetCreditFailed;
+import com.example.akka.directdebit.payment.api.PaymentCommandResponse.Ack;
+import com.example.akka.directdebit.payment.api.PaymentCommandResponse.GetPaymentStateReply;
 import com.example.akka.directdebit.payment.application.PaymentEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,11 +23,11 @@ public class PaymentEndpoint {
     private static final Logger logger = LoggerFactory.getLogger(PaymentEndpoint.class);
 
     private final ComponentClient componentClient;
-    private final ImportFileProcessor importTopicMessageProcessor;
+    private final ImportFileProcessor importFileProcessor;
 
-    public PaymentEndpoint(ComponentClient componentClient, ImportFileProcessor importTopicMessageProcessor) {
+    public PaymentEndpoint(ComponentClient componentClient, ImportFileProcessor importFileProcessor) {
         this.componentClient = componentClient;
-        this.importTopicMessageProcessor = importTopicMessageProcessor;
+        this.importFileProcessor = importFileProcessor;
     }
 
     @Post("/{id}/create")
@@ -44,6 +46,7 @@ public class PaymentEndpoint {
         logger.info("setCreditFailed [{}]: {}",paymentId, command);
         return componentClient.forEventSourcedEntity(paymentId).method(PaymentEntity::setCreditFailed).invokeAsync(command);
     }
+    @Acl(allow = @Acl.Matcher(service = "importer"))
     @Patch("/{id}/set-credited")
     public CompletionStage<Ack> setCredited(String paymentId){
         logger.info("setCredited [{}]",paymentId);
@@ -56,8 +59,8 @@ public class PaymentEndpoint {
     }
     @Post("/import")
     public CompletionStage<Ack> importFile(ImportMessage.FileToImport message){
-        return importTopicMessageProcessor.process(message)
-                .thenApply(ack -> Ack.ok())
+        return importFileProcessor.process(message)
+                .thenApply(d -> Ack.ok())
                 .exceptionally(ex -> {
                     logger.error("importFile: {}",ex);
                     return Ack.error(PaymentCommandError.IMPORT_FILE_PROCESSING_ERROR);

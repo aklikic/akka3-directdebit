@@ -1,9 +1,10 @@
 package com.example.akka.directdebit.payment.application;
 
+import akka.Done;
 import akka.javasdk.annotations.ComponentId;
 import akka.javasdk.annotations.Consume;
 import akka.javasdk.consumer.Consumer;
-import com.example.akka.directdebit.payment.fileimport.ImportFileProcessor;
+import com.example.akka.directdebit.fileimport.ImportFileProcessor;
 import com.example.akka.directdebit.payment.api.ImportMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +33,8 @@ public class ImportTopicConsumer extends Consumer {
         var process = importFileProcessor.process(message)
                 .exceptionally(e-> {
                     logger.error("Error processing flow for message (will retry): {}",e);
-                    throw new RuntimeException(e);
+//                    throw new RuntimeException(e);
+                    return Done.getInstance();
                 });
         return effects().asyncDone(process);
     }
