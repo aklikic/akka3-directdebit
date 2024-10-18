@@ -35,3 +35,8 @@ kalix service proxy payment --port 9001
 ```
 ### Test (demo)
 Run the same commands as with local test.
+
+# Multi-region demo
+```shell
+mvn deploy
+```
