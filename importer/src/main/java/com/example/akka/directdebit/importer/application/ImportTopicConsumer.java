@@ -12,8 +12,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-@ComponentId("import-topic-consumer")
-@Consume.FromTopic(ImportMessage.IMPORT_TOPIC_NAME)
+//@ComponentId("import-topic-consumer")
+//@Consume.FromTopic(ImportMessage.IMPORT_TOPIC_NAME)
 public class ImportTopicConsumer extends Consumer {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final FileImporter fileImporter;

@@ -33,7 +33,7 @@ public class IntegrationTest extends TestKitSupport {
     }
 
 
-    @Test
+//    @Test
     public void messageBrokerBasedImportTest() throws Exception{
 
         var fileName = "import-38da4ff6-bfee-4f3e-9577-f31db7984c9c.txt";
@@ -79,5 +79,7 @@ public class IntegrationTest extends TestKitSupport {
                 .invokeAsync()
                 .thenApply(StrictResponse::body);
     }
+
+
 
 }

@@ -33,13 +33,6 @@ public record HttpTransactionClient(HttpClient httpClient) implements Transactio
                 .invokeAsync()
                 .thenApply(StrictResponse::body);
     }
-//    public CompletionStage<Ack> startDebit(String transId){
-//        logger.info("startDebit [{}]",transId);
-//        return httpClient.PATCH("/transaction/"+transId+"/start-debit")
-//                .responseBodyAs(Ack.class)
-//                .invokeAsync()
-//                .thenApply(StrictResponse::body);
-//    }
     public CompletionStage<Ack> setDebited(String transId){
         logger.info("setDebited [{}]",transId);
         return httpClient.PATCH("/transaction/"+transId+"/set-debited")

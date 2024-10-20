@@ -1,22 +1,47 @@
 # Direct Debit 
+# Install
+```shell
+mvn install 
+```
 # Test locally
 Generate file:
 ```shell
-mvn exec:java -Dexec.mainClass="com.example.directdebit.transaction.api.ImportFileGenerator"
+mvn exec:java -Dexec.mainClass="com.example.directdebit.importer.FileGenerator"
 ```
-Trigger import:
+Trigger endpoint import:
 ```shell
 curl -XPOST -d '{
-  "fileLocation": "s3://import-38da4ff6-bfee-4f3e-9577-f31db7984c9c.txt"
-}' http://localhost:9001/payment/import -v -H "Content-Type: application/json"
+  "fileName": "import-532df49a-e91f-413e-a84a-324a56f2d314.txt",
+  "folder": "akka3-direct-debit"
+}' http://localhost:9002/importer/import -H "Content-Type: application/json"
+```
+
+Trigger consumer import. Produce message to kafka-ui import topic. 
+```json
+{
+  "fileName": "import-38da4ff6-bfee-4f3e-9577-f31db7984c9c.txt",
+  "folder": "akka3-direct-debit"
+}
+```
+
+Query transactions by payment and status:
+```shell
+curl -XPOST -d '{
+  "paymentId": "p1-5b11d096-e6d2-403b-8efb-508daa6d98be",
+  "statusId": "DEBIT_STARTED"
+}' http://localhost:9003/transaction/query-by-payment-and-status -H "Content-Type: application/json"
+```
+
+Start s3 bucket listing:
+```shell
+curl -XPOST -d '{
+  "folder": "akka3-direct-debit"
+}' http://localhost:9002/importer/listing/initialise -H "Content-Type: application/json"
 ```
 
 # Deploy
-## Configure KCR (Kalix Container Registry)
-https://docs.kalix.io/operations/container-registries.html#_kalix_container_registry
-
-## Push image to KCR and deploy
-In each Maven module/project (`transaction`, `payment`) configure these properties in `pom.xml` (`container.registry`, `organization`) and run:
+## Push image and deploy
+In each Maven module/project (`transaction`, `payment`, `importer`) configure these properties in `pom.xml` (`dockerImage`):
 ```shell
 mvn deploy
 ```
@@ -24,17 +49,6 @@ Copy the image URL and deploy service to Kalix:
 ```shell
 kalix service deploy --with-embedded-runtime <service name> <pushed image url>
 ```
-
-# Demo (test) in Cloud runtime
-## Set proxies:
-```shell
-kalix service proxy transaction --port 9003
-```
-```shell
-kalix service proxy payment --port 9001
-```
-### Test (demo)
-Run the same commands as with local test.
 
 # Multi-region demo
 Create transaction (GCP region):

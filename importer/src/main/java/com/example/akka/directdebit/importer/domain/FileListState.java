@@ -25,8 +25,12 @@ public record FileListState(String folder, List<FileState> files, boolean runnin
         return new FileListState(folder, files, false,lastListTimestamp);
     }
 
+    public boolean anythingToProcess(List<String> fileNames){
+        return fileNames.stream().filter(fileName -> !files.stream().filter(fn -> fileName.equals(fn.fileName())).findAny().isPresent()).count() > 0;
+    }
+
     public FileListState addFiles(List<String> fileNames){
-        var listToAdd = fileNames.stream().filter(fileName -> !files.stream().filter(fn -> fileName.equals(fn)).findAny().isPresent()).map(FileState::inProcess).toList();
+        var listToAdd = fileNames.stream().filter(fileName -> !files.stream().filter(fn -> fileName.equals(fn.fileName())).findAny().isPresent()).map(FileState::inProcess).toList();
         files.addAll(listToAdd);
         return this;
     }

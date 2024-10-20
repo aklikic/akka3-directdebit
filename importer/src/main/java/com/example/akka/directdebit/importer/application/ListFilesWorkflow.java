@@ -7,23 +7,20 @@ import akka.javasdk.client.ComponentClient;
 import akka.javasdk.workflow.Workflow;
 import akka.stream.Materializer;
 import akka.stream.javadsl.Keep;
-import akka.stream.javadsl.Merge;
 import akka.stream.javadsl.Sink;
 import akka.stream.javadsl.Source;
 import com.example.akka.directdebit.fileimport.list.FileListSource;
-import com.example.akka.directdebit.importer.WorkflowId;
 import com.example.akka.directdebit.importer.MySettings;
+import com.example.akka.directdebit.importer.WorkflowId;
 import com.example.akka.directdebit.importer.api.ImportCommand;
 import com.example.akka.directdebit.importer.api.ImportCommandResponse;
 import com.example.akka.directdebit.importer.domain.FileListState;
-import com.example.akka.directdebit.util.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @ComponentId("list-files-workflow")
@@ -62,8 +59,8 @@ public class ListFilesWorkflow extends Workflow<FileListState> {
         logger.info("initialise locationId=[{}]: {}",locationId(),command);
         if(currentState().isEmpty()){
             return effects()
-                    .updateState(currentState().initialise(command.folder()))
-                    .pause()
+                    .updateState(currentState().initialise(command.folder()).start())
+                    .transitionTo(LIST)
                     .thenReply(ImportCommandResponse.Ack.ok());
         }else{
             logger.info("listFiles: locationId=[{}] already initialised!",locationId());
@@ -94,7 +91,7 @@ public class ListFilesWorkflow extends Workflow<FileListState> {
 
     var listStep = step(LIST)
       .asyncCall(()->
-        fileListSource.list(materializer).toMat(Sink.seq(), Keep.right()).run(materializer)
+        fileListSource.list(currentState().folder(), materializer).toMat(Sink.seq(), Keep.right()).run(materializer)
                 .thenApply(ListedFileNames::new)
                 .exceptionally(e-> {
                     logger.error("Error listing files from location [{}]: {}",locationId(), e);
@@ -102,11 +99,22 @@ public class ListFilesWorkflow extends Workflow<FileListState> {
                  })
       )
       .andThen(ListedFileNames.class, res ->{
+          logger.info("files listed [{}]: {}",locationId(),res);
           if(!res.fileNames().isEmpty()){
-            return effects()
-                    .updateState(currentState().addFiles(res.fileNames()))
-                    .transitionTo(SEND_FILES_FOR_IMPORT);
+            if(currentState().anythingToProcess(res.fileNames())) {
+                logger.info("Adding files for process [{}]: {}",locationId(),res);
+                return effects()
+                        .updateState(currentState().addFiles(res.fileNames()))
+                        .transitionTo(SEND_FILES_FOR_IMPORT);
+            }else{
+                var msg = currentState().files().stream().map(f -> "%s/%s".formatted(f.fileName(),f.status())).collect(Collectors.joining(";"));
+                logger.info("[{}] Nothing to add from listing. listing[{}], in process[{}]",locationId(),res,msg);
+                return effects()
+                        .updateState(currentState().end())
+                        .transitionTo(SCHEDULE_NEXT_LIST);
+            }
           }else{
+            logger.info("[{}] Nothing to add",locationId());
             return effects()
                     .updateState(currentState().end())
                     .transitionTo(SCHEDULE_NEXT_LIST);
@@ -114,40 +122,45 @@ public class ListFilesWorkflow extends Workflow<FileListState> {
       });
 
     var sendFilesForImport = step(SEND_FILES_FOR_IMPORT)
-      .asyncCall(()->{
-        var sends = currentState().files().stream()
-                .map(file -> componentClient.forWorkflow(WorkflowId.fileImportWorkflowId(file.fileName(),currentState().folder()))
-                                            .method(FileImportWorkflow::start)
-                                            .invokeAsync(new ImportCommand.StartFileImport(file.fileName(),currentState().folder()))
-                                            .thenApply(ack -> new SendRes(file.fileName(),ack.error()))
-                                            .exceptionally(e -> {
-                                              logger.error("Error importing file [{}]: {}",locationId(), e);
-                                              return new SendRes(file.fileName(), Optional.of(e.getMessage()));
-                                            })
-                                            .toCompletableFuture())
-                .toList();
-        return Utils.allOf(sends).thenApply(SendResList::new);
-      })
-      .andThen(SendResList.class, resList ->
-        effects()
-          .updateState(currentState().filesProcessStatus(resList.map()))
-          .transitionTo(DELETE)
-      );
+      .asyncCall(()->
+          Source.from(currentState().files())
+                  .mapAsync(currentState().files().size(),
+                          file -> componentClient.forWorkflow(WorkflowId.fileImportWorkflowId(file.fileName(),currentState().folder()))
+                                                  .method(FileImportWorkflow::start)
+                                                  .invokeAsync(new ImportCommand.StartFileImport(file.fileName(),currentState().folder()))
+                                                  .thenApply(ack -> new SendRes(file.fileName(),ack.error()))
+                                                  .exceptionally(e -> {
+                                                      //TODO move error handling via workflow failover
+                                                      logger.error("Error importing file [{}]: {}",locationId(), e);
+                                                      return new SendRes(file.fileName(), Optional.of(e.getMessage()));
+                                                  })
+                  ).toMat(Sink.seq(), Keep.right())
+                  .run(materializer)
+                  .thenApply(SendResList::new)
+      )
+      .andThen(SendResList.class, resList -> {
+          var update = effects().updateState(currentState().filesProcessStatus(resList.map()));
+          if(settings.disableFileDelete){
+              return update.transitionTo(SCHEDULE_NEXT_LIST);
+          }else{
+              return update.transitionTo(DELETE);
+          }
+
+      });
 
     var delete = step(DELETE)
-    .asyncCall(()-> {
-      var deletes = currentState().files().stream().map(file -> fileListSource.delete(file.fileName(), materializer)).toList();
-//      return Source.combine(deletes, Merge::create)
-//              .toMat(Sink.seq(), Keep.right())
-//              .run(materializer)
-//              .thenApply(list -> new DeleteRes(Optional.empty()))
-//              .exceptionally(e-> {
-//                  logger.error("Error deleting files [{}]: {}",locationId(), e);
-//                  return new DeleteRes(Optional.of(e.getMessage()));
-//              });
-        return CompletableFuture.completedFuture(new DeleteRes(Optional.empty()));
-        //TODO
-    })
+    .asyncCall(()->
+        Source.from(currentState().files())
+                .flatMapConcat(file -> fileListSource.delete(file.fileName(), currentState().folder(), materializer))
+                .toMat(Sink.head(),Keep.right())
+                .run(materializer)
+                .thenApply(list -> new DeleteRes(Optional.empty()))
+                .exceptionally(e-> {
+                    //TODO move error handling via workflow failover
+                    logger.error("Error deleting files [{}]: {}",locationId(), e);
+                    return new DeleteRes(Optional.of(e.getMessage()));
+                })
+    )
     .andThen(DeleteRes.class, deleteRes ->
             effects()
                     .updateState(deleteRes.error().map(error -> currentState().filesDeleteError(error)).orElse(currentState().filesDeleted()))

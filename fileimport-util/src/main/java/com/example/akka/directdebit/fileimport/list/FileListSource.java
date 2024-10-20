@@ -5,6 +5,6 @@ import akka.stream.Materializer;
 import akka.stream.javadsl.Source;
 
 public interface FileListSource {
-    Source<String,?> list(Materializer materializer);
-    Source<Done,?> delete(String fileName, Materializer materializer);
+    Source<String,?> list(String folder, Materializer materializer);
+    Source<Done,?> delete(String fileName, String folder, Materializer materializer);
 }

@@ -27,7 +27,7 @@ public class ImporterSetup implements ServiceSetup {
         this.mySettings = new MySettings(config);
         var fileDownloadSource = new S3FileDownloadSource(new FileContentSerializationFlow(), config);
         this.fileImporter = new FileImporter(fileDownloadSource, new FileProcessFlowImpl(httpClientProvider), mySettings.importPaymentParallelism, mySettings.importTransactionParallelism);
-        this.fileListSource = new S3BucketListSource(mySettings.s3BucketName, config);
+        this.fileListSource = new S3BucketListSource(config);
     }
 
     @Override
