@@ -9,13 +9,20 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
+    <groupId>com.example.akka.directdebit</groupId>
     <artifactId>importer</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
 
     <properties>
         <!-- For Docker setup see https://docs.kalix.io/projects/container-registries.html -->
-        <container.registry>kcr.us-east-1.kalix.io</container.registry>
-        <organization>lightbend-eng</organization>
-        <akka.javasdk.dev-mode.http-port>9002</akka.javasdk.dev-mode.http-port>
+<!--        <container.registry>kcr.us-east-1.kalix.io</container.registry>-->
+<!--        <organization>lightbend-eng</organization>-->
+        <dockerImage>aklikic/${project.artifactId}</dockerImage>
+        <dockerTag>${project.version}-${build.timestamp}</dockerTag>
+        <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
+        <kalix.proxy.eventing.kafka.bootstrap-servers>localhost:9092</kalix.proxy.eventing.kafka.bootstrap-servers>
     </properties>
 
     <dependencies>
@@ -39,6 +46,26 @@
         </dependency>
 
         <dependency>
+            <groupId>com.example.akka.directdebit</groupId>
+            <artifactId>fileimport-util</artifactId>
+            <version>${direct-debit.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.typesafe.akka</groupId>
+                    <artifactId>akka-http_2.13</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.typesafe.akka</groupId>
+                    <artifactId>akka-stream_2.13</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.typesafe.akka</groupId>
+                    <artifactId>akka-pki_2.13</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
             <version>5.10.1</version>
@@ -56,12 +83,6 @@
             <version>4.2.0</version>
             <scope>test</scope>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>com.lightbend.akka</groupId>-->
-<!--            <artifactId>akka-stream-alpakka-file_2.13</artifactId>-->
-<!--            <version>8.0.0</version>-->
-<!--            <scope>test</scope>-->
-<!--        </dependency>-->
 
     </dependencies>
 </project>

@@ -1,10 +1,7 @@
 package com.example.directdebit.payment;
 
 import akka.javasdk.testkit.TestKitSupport;
-import com.example.akka.directdebit.payment.api.TransactionByPaymentAndStatusViewModel;
-import com.example.akka.directdebit.payment.api.HttpTransactionClient;
-import com.example.akka.directdebit.payment.api.TransactionCommand;
-import com.example.akka.directdebit.payment.api.TransactionCommandError;
+import com.example.akka.directdebit.payment.api.*;
 import com.example.akka.directdebit.payment.api.TransactionCommandResponse.ApiTransactionStatus;
 import com.example.akka.directdebit.payment.application.TransactionEntity;
 import org.awaitility.Awaitility;
@@ -107,8 +104,8 @@ public class TransactionIntegrationTest extends TestKitSupport {
 
 
 
-    private HttpTransactionClient transactionClient;
-    private HttpTransactionClient getClient(){
+    private TransactionClient transactionClient;
+    private TransactionClient getClient(){
         if(transactionClient==null){
             transactionClient = new HttpTransactionClient(httpClient);
         }

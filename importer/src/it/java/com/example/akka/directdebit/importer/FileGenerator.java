@@ -17,7 +17,7 @@ public class FileGenerator {
 
     public static void main(String[] args) throws Exception{
 
-        var location = "importer/src/it/resources/import-%s.txt".formatted(UUID.randomUUID().toString());
+        var location = "importer/filestore/import-%s.txt".formatted(UUID.randomUUID().toString());
         ActorSystem as = ActorSystem.create("FileGenerator");
         Materializer mat = Materializer.matFromSystem(as);
         var numberOfPayments = 1;

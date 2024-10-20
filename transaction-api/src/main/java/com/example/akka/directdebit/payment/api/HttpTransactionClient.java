@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CompletionStage;
 
-public record HttpTransactionClient(HttpClient httpClient) {
+public record HttpTransactionClient(HttpClient httpClient) implements TransactionClient{
     private static final Logger logger = LoggerFactory.getLogger(HttpTransactionClient.class);
 
     public HttpTransactionClient(HttpClientProvider httpClientProvider){

@@ -6,7 +6,6 @@ import akka.javasdk.annotations.http.HttpEndpoint;
 import akka.javasdk.annotations.http.Patch;
 import akka.javasdk.annotations.http.Post;
 import akka.javasdk.client.ComponentClient;
-import com.example.akka.directdebit.fileimport.ImportFileProcessor;
 import com.example.akka.directdebit.payment.api.PaymentCommand.Create;
 import com.example.akka.directdebit.payment.api.PaymentCommand.SetCreditFailed;
 import com.example.akka.directdebit.payment.api.PaymentCommandResponse.Ack;
@@ -17,17 +16,15 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CompletionStage;
 
-@Acl(allow = @Acl.Matcher(principal = Acl.Principal.INTERNET))
+@Acl(allow = @Acl.Matcher(principal = Acl.Principal.ALL))
 @HttpEndpoint("/payment")
 public class PaymentEndpoint {
     private static final Logger logger = LoggerFactory.getLogger(PaymentEndpoint.class);
 
     private final ComponentClient componentClient;
-    private final ImportFileProcessor importFileProcessor;
 
-    public PaymentEndpoint(ComponentClient componentClient, ImportFileProcessor importFileProcessor) {
+    public PaymentEndpoint(ComponentClient componentClient) {
         this.componentClient = componentClient;
-        this.importFileProcessor = importFileProcessor;
     }
 
     @Post("/{id}/create")
@@ -46,7 +43,6 @@ public class PaymentEndpoint {
         logger.info("setCreditFailed [{}]: {}",paymentId, command);
         return componentClient.forEventSourcedEntity(paymentId).method(PaymentEntity::setCreditFailed).invokeAsync(command);
     }
-    @Acl(allow = @Acl.Matcher(service = "importer"))
     @Patch("/{id}/set-credited")
     public CompletionStage<Ack> setCredited(String paymentId){
         logger.info("setCredited [{}]",paymentId);
@@ -57,14 +53,4 @@ public class PaymentEndpoint {
         logger.info("get [{}]",paymentId);
         return componentClient.forEventSourcedEntity(paymentId).method(PaymentEntity::getPaymentState).invokeAsync();
     }
-    @Post("/import")
-    public CompletionStage<Ack> importFile(ImportMessage.FileToImport message){
-        return importFileProcessor.process(message)
-                .thenApply(d -> Ack.ok())
-                .exceptionally(ex -> {
-                    logger.error("importFile: {}",ex);
-                    return Ack.error(PaymentCommandError.IMPORT_FILE_PROCESSING_ERROR);
-                });
-    }
-
 }

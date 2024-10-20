@@ -46,7 +46,7 @@
     <module>transaction-api</module>
     <module>transaction</module>
     <module>payment</module>
-<!--    <module>importer</module>-->
+    <module>importer</module>
   </modules>
 
   <repositories>

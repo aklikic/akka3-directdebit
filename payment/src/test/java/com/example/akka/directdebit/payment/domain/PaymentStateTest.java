@@ -11,6 +11,7 @@ public class PaymentStateTest {
     @Test
     public void shouldCreateTransaction(){
 
+
         //given
         var paymentCreditDelaySeconds = 1;
         var paymentId = "p1";

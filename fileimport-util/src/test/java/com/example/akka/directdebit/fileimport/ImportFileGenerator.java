@@ -2,6 +2,7 @@ package com.example.akka.directdebit.fileimport;
 
 import akka.actor.ActorSystem;
 import akka.stream.Materializer;
+import com.example.akka.directdebit.fileimport.download.FilesystemFileDownloadSource;
 
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -21,8 +22,8 @@ public class ImportFileGenerator {
 
         var paymentPrefix = UUID.randomUUID().toString();
 
-        var generatedPaymentsSource = ImportFileUtil.generate(paymentPrefix, numberOfPayments,numberOfTransactions,debitAmount);
-        ImportFileUtil.storeToFile(generatedPaymentsSource,location,mat).toCompletableFuture().get(3, TimeUnit.SECONDS);
+        var generatedPaymentsSource = FilesystemFileDownloadSource.generate(paymentPrefix, numberOfPayments,numberOfTransactions,debitAmount);
+        FilesystemFileDownloadSource.storeToFile(generatedPaymentsSource,location,mat).toCompletableFuture().get(3, TimeUnit.SECONDS);
         as.terminate();
 
         System.out.println("File: " + location);

@@ -18,7 +18,6 @@
         <dockerImage>aklikic/${project.artifactId}</dockerImage>
         <dockerTag>${project.version}-${build.timestamp}</dockerTag>
         <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
-        <kalix.proxy.eventing.kafka.bootstrap-servers>localhost:9092</kalix.proxy.eventing.kafka.bootstrap-servers>
     </properties>
 
 
@@ -28,26 +27,6 @@
             <groupId>com.example.akka.directdebit</groupId>
             <artifactId>directdebit-util</artifactId>
             <version>${direct-debit.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.example.akka.directdebit</groupId>
-            <artifactId>fileimport-util</artifactId>
-            <version>${direct-debit.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.typesafe.akka</groupId>
-                    <artifactId>akka-http_2.13</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.typesafe.akka</groupId>
-                    <artifactId>akka-stream_2.13</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.typesafe.akka</groupId>
-                    <artifactId>akka-pki_2.13</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <dependency>

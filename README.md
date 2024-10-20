@@ -37,6 +37,22 @@ kalix service proxy payment --port 9001
 Run the same commands as with local test.
 
 # Multi-region demo
+Create transaction (GCP region):
 ```shell
-mvn deploy
+curl -XPOST -d '{
+  "paymentId": "p123456",
+  "debitAmountCents":"100"
+}' https://floral-brook-7298.gcp-us-east1.apps.akka.dev/transaction/t123456/create -H "Content-Type: application/json"
+```
+Get transaction (AWS region):
+```shell
+curl -XGET https://floral-brook-7298.aws-us-east-2.apps.akka.dev/transaction/t123456 -H "Content-Type: application/json"
+```
+Get transaction (GCP region):
+```shell
+curl -XGET https://floral-brook-7298.gcp-us-east1.apps.akka.dev/transaction/t123456 -H "Content-Type: application/json"
+```
+Initialize transaction (AWS region):
+```shell
+curl -XPATCH https://floral-brook-7298.aws-us-east-2.apps.akka.dev/transaction/t123456/initialize -H "Content-Type: application/json"
 ```

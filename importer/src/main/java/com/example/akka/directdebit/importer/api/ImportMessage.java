@@ -1,4 +1,4 @@
-package com.example.akka.directdebit.payment.api;
+package com.example.akka.directdebit.importer.api;
 
 import akka.javasdk.JsonSupport;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -9,12 +9,12 @@ import java.io.IOException;
 
 public sealed interface ImportMessage {
     String IMPORT_TOPIC_NAME = "import";
-    record FileToImport(String fileLocation) implements ImportMessage {
-        public static FileToImport serialize(byte[] rawMessage) throws IOException {
+    record FileToImport(String fileName, String folder) implements ImportMessage {
+        public static FileToImport deSerialize(byte[] rawMessage) throws IOException {
             return JsonSupport.parseBytes(rawMessage, FileToImport.class);
         }
         @JsonIgnore
-        public ByteString deSerialize() throws JsonProcessingException {
+        public ByteString serialize() throws JsonProcessingException {
             return JsonSupport.encodeToBytes(this);
         }
     }
