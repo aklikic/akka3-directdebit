@@ -18,8 +18,8 @@ public class PaymentEntity extends EventSourcedEntity<PaymentState, PaymentEvent
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private String paymentId;
-    private int paymentCreditDelaySeconds;
+    private final String paymentId;
+    private final int paymentCreditDelaySeconds;
 
     public PaymentEntity(EventSourcedEntityContext context, MySettings myConfig) {
         this.paymentId = context.entityId();
@@ -82,13 +82,13 @@ public class PaymentEntity extends EventSourcedEntity<PaymentState, PaymentEvent
             return effects().persistAll(result.events())
                     .thenReply(updateState ->
                             result.error()
-                                    .map(error -> Ack.error(error))
+                                    .map(Ack::error)
                                     .orElse(Ack.ok())
                     );
         }else{
             return effects().reply(
                     result.error()
-                            .map(error -> Ack.error(error))
+                            .map(Ack::error)
                             .orElse(Ack.ok())
             );
         }

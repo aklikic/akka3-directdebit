@@ -94,7 +94,7 @@ public class ListFilesWorkflow extends Workflow<FileListState> {
         fileListSource.list(currentState().folder(), materializer).toMat(Sink.seq(), Keep.right()).run(materializer)
                 .thenApply(ListedFileNames::new)
                 .exceptionally(e-> {
-                    logger.error("Error listing files from location [{}]: {}",locationId(), e);
+                    logger.error("Error listing files from location [{}]", locationId(), e);
                     return new ListedFileNames(List.of());
                  })
       )
@@ -131,7 +131,7 @@ public class ListFilesWorkflow extends Workflow<FileListState> {
                                                   .thenApply(ack -> new SendRes(file.fileName(),ack.error()))
                                                   .exceptionally(e -> {
                                                       //TODO move error handling via workflow failover
-                                                      logger.error("Error importing file [{}]: {}",locationId(), e);
+                                                      logger.error("Error importing file [{}]",locationId(), e);
                                                       return new SendRes(file.fileName(), Optional.of(e.getMessage()));
                                                   })
                   ).toMat(Sink.seq(), Keep.right())
@@ -157,7 +157,7 @@ public class ListFilesWorkflow extends Workflow<FileListState> {
                 .thenApply(list -> new DeleteRes(Optional.empty()))
                 .exceptionally(e-> {
                     //TODO move error handling via workflow failover
-                    logger.error("Error deleting files [{}]: {}",locationId(), e);
+                    logger.error("Error deleting files [{}]", locationId(), e);
                     return new DeleteRes(Optional.of(e.getMessage()));
                 })
     )
@@ -191,7 +191,7 @@ public class ListFilesWorkflow extends Workflow<FileListState> {
   private record SendRes(String fileName, Optional<String> error){}
   private record SendResList(List<SendRes> sendRes){
     public Map<String, Optional<String>> map(){
-      return sendRes.stream().collect(Collectors.toMap(SendRes::fileName, res -> res.error()));
+      return sendRes.stream().collect(Collectors.toMap(SendRes::fileName, SendRes::error));
     }
   }
   private record DeleteRes(Optional<String> error){}
