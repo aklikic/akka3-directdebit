@@ -126,6 +126,9 @@ public class ListFilesWorkflow extends Workflow<FileListState> {
           Source.from(currentState().files())
                   .mapAsync(currentState().files().size(),
                           file -> componentClient.forWorkflow(WorkflowId.fileImportWorkflowId(file.fileName(),currentState().folder()))
+                                                   // COMMENT: just a heads-up that there is a limit on the number of
+                                                   // concurrent workflows. Make sure you don't exceed it during a
+                                                   // demo. Otherwise, you can throttle the workflow creation.
                                                   .method(FileImportWorkflow::start)
                                                   .invokeAsync(new ImportCommand.StartFileImport(file.fileName(),currentState().folder()))
                                                   .thenApply(ack -> new SendRes(file.fileName(),ack.error()))

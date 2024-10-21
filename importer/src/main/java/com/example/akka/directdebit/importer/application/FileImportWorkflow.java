@@ -66,6 +66,10 @@ public class FileImportWorkflow extends Workflow<FileImportState> {
                                 })
                 )
                 .andThen(ProcessRes.class, res ->
+                        // COMMENT: probably not important for quick showcasing,
+                        // but following line can be confusing. On updating the state, we start by looking at the
+                        // error field. If we it in a workshop, where devs are expected to think together, this might
+                        // create unnecessary confusion.
                         effects().updateState(res.error().map(error -> currentState().processError(error)).orElse(currentState().processed()))
                                  .end()
                 );

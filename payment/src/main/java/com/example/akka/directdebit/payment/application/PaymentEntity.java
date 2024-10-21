@@ -81,11 +81,17 @@ public class PaymentEntity extends EventSourcedEntity<PaymentState, PaymentEvent
         if(!result.events().isEmpty()){
             return effects().persistAll(result.events())
                     .thenReply(updateState ->
+                            // COMMENT: it is not  possible to have events and error at the same time
+                            // so here we could return Ack.ok directly without checking if there is an error
                             result.error()
                                     .map(Ack::error)
                                     .orElse(Ack.ok())
                     );
         }else{
+            // COMMENT: similar to above, if no events, than there is an error, no?
+            // maybe we could add StateCommandProcessResult.hasEvents and StateCommandProcessResult.hasError methods
+            // that will make it more intention revealing
+            // or event better, you could have two types ADT for StateCommandProcessResult and use pattern matching
             return effects().reply(
                     result.error()
                             .map(Ack::error)
