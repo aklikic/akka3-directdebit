@@ -14,7 +14,6 @@ import com.example.akka.directdebit.fileimport.serialize.FileContentSerializatio
 import com.typesafe.config.Config;
 
 @Setup
-@Acl(allow = @Acl.Matcher(principal = Acl.Principal.INTERNET))
 public class ImporterSetup implements ServiceSetup {
 
     private final MySettings mySettings;
