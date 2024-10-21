@@ -35,7 +35,7 @@ public class ImportTopicConsumer extends Consumer {
         logger.info("onMessage {}", message);
         var process = fileImporter.process(message.fileName(), message.folder(), materializer)
                 .exceptionally(e-> {
-                    logger.error("Error processing flow for message (will retry): {}",e);
+                    logger.error("Error processing flow for message (will retry)", e);
 //                    throw new RuntimeException(e);
                     return Done.getInstance();
                 });
