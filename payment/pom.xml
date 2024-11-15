@@ -11,14 +11,14 @@
 
     <artifactId>payment</artifactId>
 
-    <properties>
-        <!-- For Docker setup see https://docs.kalix.io/projects/container-registries.html -->
-<!--        <container.registry>kcr.us-east-1.kalix.dev</container.registry>-->
-<!--        <organization>lightbend</organization>-->
-        <dockerImage>aklikic/${project.artifactId}</dockerImage>
-        <dockerTag>${project.version}-${build.timestamp}</dockerTag>
-        <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
-    </properties>
+<!--    <properties>-->
+<!--        &lt;!&ndash; For Docker setup see https://docs.kalix.io/projects/container-registries.html &ndash;&gt;-->
+<!--&lt;!&ndash;        <container.registry>kcr.us-east-1.kalix.dev</container.registry>&ndash;&gt;-->
+<!--&lt;!&ndash;        <organization>lightbend</organization>&ndash;&gt;-->
+<!--        <dockerImage>aklikic/${project.artifactId}</dockerImage>-->
+<!--        <dockerTag>${project.version}-${build.timestamp}</dockerTag>-->
+<!--        <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>-->
+<!--    </properties>-->
 
 
     <dependencies>

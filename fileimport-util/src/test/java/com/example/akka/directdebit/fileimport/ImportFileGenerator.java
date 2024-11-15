@@ -12,7 +12,7 @@ public class ImportFileGenerator {
     public static void main(String[] args) throws Exception{
 
         System.out.println(System.getProperty("user.dir"));
-        var location = "payment/filestore/import-%s.txt".formatted(UUID.randomUUID().toString());
+        var location = "s3files/import-%s.txt".formatted(UUID.randomUUID().toString());
         ActorSystem as = ActorSystem.create("FileGenerator");
         Materializer mat = Materializer.matFromSystem(as);
         var numberOfPayments = 2;

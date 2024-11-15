@@ -27,28 +27,28 @@ public class PaymentEndpoint {
         this.componentClient = componentClient;
     }
 
-    @Post("/{id}/create")
+    @Post("/{paymentId}/create")
     public CompletionStage<Ack> create(String paymentId, Create command){
         logger.info("create [{}]: {}",paymentId, command);
         return componentClient.forEventSourcedEntity(paymentId).method(PaymentEntity::create).invokeAsync(command);
     }
-    @Patch("/{id}/initialize")
+    @Patch("/{paymentId}/initialize")
     public CompletionStage<Ack> initialize(String paymentId){
         logger.info("initialize [{}]",paymentId);
         return componentClient.forEventSourcedEntity(paymentId).method(PaymentEntity::initialize).invokeAsync();
     }
 
-    @Patch("/{id}/set-credit-failed")
+    @Patch("/{paymentId}/set-credit-failed")
     public CompletionStage<Ack> setCreditFailed(String paymentId, SetCreditFailed command){
         logger.info("setCreditFailed [{}]: {}",paymentId, command);
         return componentClient.forEventSourcedEntity(paymentId).method(PaymentEntity::setCreditFailed).invokeAsync(command);
     }
-    @Patch("/{id}/set-credited")
+    @Patch("/{paymentId}/set-credited")
     public CompletionStage<Ack> setCredited(String paymentId){
         logger.info("setCredited [{}]",paymentId);
         return componentClient.forEventSourcedEntity(paymentId).method(PaymentEntity::setCredited).invokeAsync();
     }
-    @Get("/{id}")
+    @Get("/{paymentId}")
     public CompletionStage<GetPaymentStateReply> getTransactionState(String paymentId){
         logger.info("get [{}]",paymentId);
         return componentClient.forEventSourcedEntity(paymentId).method(PaymentEntity::getPaymentState).invokeAsync();

@@ -40,32 +40,32 @@ public class TransactionEndpoint {
         this.componentClient = componentClient;
     }
 
-    @Post("/{id}/create")
+    @Post("/{transId}/create")
     public CompletionStage<Ack> create(String transId, Create command){
         logger.info("create [{}]: {}",transId, command);
         return componentClient.forEventSourcedEntity(transId).method(TransactionEntity::create).invokeAsync(command);
     }
-    @Patch("/{id}/initialize")
+    @Patch("/{transId}/initialize")
     public CompletionStage<Ack> initialize(String transId){
         logger.info("initialize [{}]",transId);
         return componentClient.forEventSourcedEntity(transId).method(TransactionEntity::initialize).invokeAsync();
     }
-//    @Patch("/{id}/start-debit")
+//    @Patch("/{transId}/start-debit")
 //    public CompletionStage<Ack> startDebit(String transId){
 //        logger.info("startDebit [{}]",transId);
 //        return componentClient.forEventSourcedEntity(transId).method(TransactionEntity::startDebit).invokeAsync();
 //    }
-    @Patch("/{id}/set-debit-failed")
+    @Patch("/{transId}/set-debit-failed")
     public CompletionStage<Ack> setDebitFailed(String transId, SetDebitFailed command){
         logger.info("setDebitFailed [{}]: {}",transId, command);
         return componentClient.forEventSourcedEntity(transId).method(TransactionEntity::setDebitFailed).invokeAsync(command);
     }
-    @Patch("/{id}/set-debited")
+    @Patch("/{transId}/set-debited")
     public CompletionStage<Ack> setDebited(String transId){
         logger.info("setDebited [{}]",transId);
         return componentClient.forEventSourcedEntity(transId).method(TransactionEntity::setDebited).invokeAsync();
     }
-    @Get("/{id}")
+    @Get("/{transId}")
     public CompletionStage<GetTransactionStateReply> getTransactionState(String transId){
         logger.info("get [{}]",transId);
         return componentClient.forEventSourcedEntity(transId).method(TransactionEntity::getTransactionState).invokeAsync();

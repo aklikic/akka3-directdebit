@@ -30,7 +30,7 @@
         <dependency>
             <groupId>com.lightbend.akka</groupId>
             <artifactId>akka-stream-alpakka-s3_2.13</artifactId>
-            <version>8.0.0</version>
+            <version>9.0.0</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.typesafe.akka</groupId>
@@ -46,33 +46,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-<!--    <dependency>-->
-<!--        <groupId>com.lightbend.akka</groupId>-->
-<!--        <artifactId>akka-stream-alpakka-s3_2.13</artifactId>-->
-<!--        <version>8.0.0</version>-->
-<!--    </dependency>-->
-
-<!--    <dependency>-->
-<!--        <groupId>com.typesafe.akka</groupId>-->
-<!--        <artifactId>akka-stream_2.13</artifactId>-->
-<!--        <version>2.9.7</version>-->
-<!--    </dependency>-->
-<!--    <dependency>-->
-<!--        <groupId>com.typesafe.akka</groupId>-->
-<!--        <artifactId>akka-http_2.13</artifactId>-->
-<!--        <version>10.6.3</version>-->
-<!--    </dependency>-->
-<!--    <dependency>-->
-<!--        <groupId>com.typesafe.akka</groupId>-->
-<!--        <artifactId>akka-http-xml_2.13</artifactId>-->
-<!--        <version>10.6.3</version>-->
-<!--    </dependency>-->
-<!--    <dependency>-->
-<!--        <groupId>com.typesafe.akka</groupId>-->
-<!--        <artifactId>akka-pki_2.13</artifactId>-->
-<!--        <version>2.9.7</version>-->
-<!--    </dependency>-->
-
     </dependencies>
 
 </project>

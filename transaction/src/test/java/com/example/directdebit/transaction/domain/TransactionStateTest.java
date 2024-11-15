@@ -31,5 +31,4 @@ public class TransactionStateTest {
         assertEquals(TransactionStatus.CREATED, updatedState.status());
     }
 
-    //TODO do more tests
 }

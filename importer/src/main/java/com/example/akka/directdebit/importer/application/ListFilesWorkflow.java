@@ -55,7 +55,7 @@ public class ListFilesWorkflow extends Workflow<FileListState> {
   }
 
 
-    public Effect<ImportCommandResponse.Ack> initialise(ImportCommand.InitialiseFilesList command) {
+  public Effect<ImportCommandResponse.Ack> initialise(ImportCommand.InitialiseFilesList command) {
         logger.info("initialise locationId=[{}]: {}",locationId(),command);
         if(currentState().isEmpty()){
             return effects()
@@ -66,7 +66,7 @@ public class ListFilesWorkflow extends Workflow<FileListState> {
             logger.info("listFiles: locationId=[{}] already initialised!",locationId());
             return effects().reply(ImportCommandResponse.Ack.error("Already initialised!"));
         }
-    }
+  }
 
   public Effect<ImportCommandResponse.Ack> listFiles() {
     logger.info("listFiles locationId=[{}]",locationId());
